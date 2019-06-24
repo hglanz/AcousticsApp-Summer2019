@@ -1,10 +1,10 @@
-# AcousticsApp-Summer2019
+# Bioacoustics Shiny App
 
 ## Summer Research, 2019
 
 #### _Students:_ Michal Golovanevsky
 
-#### _Faculty advisor:_ Hunter Glanz
+#### _Faculty advisors:_ Hunter Glanz & Maddie Schroth-Glanz
 
 ### Objective
 
