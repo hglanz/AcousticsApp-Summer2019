@@ -14,7 +14,7 @@ The objective of this summer research is to develop, expand, and polish an R Shi
 
 **A GitHub repository which contains the following:**
 
-1.  An R project which contains all files relevant to the shiny app.
+1.  An R project which contains all files relevant to the shiny app: [current version](https://mschroth.shinyapps.io/testapp/).
 
 2.  A log of hours spent on the summer research by the student, which includes date, hours, and activity summary.
 
@@ -50,7 +50,7 @@ The objective of this summer research is to develop, expand, and polish an R Shi
   
   *  Download [RavenLite software](http://ravensoundsoftware.com/software/raven-lite/) to familiarize yourself with working with sound data.
   
-  *  Check out [RavenLite Manual](http://www.birds.cornell.edu/brp/raven/Raven14UsersManual.pdf) for information about sound data.
+  *  Check out [RavenLite Manual](http://www.birds.cornell.edu/brp/raven/Raven14UsersManual.pdf) for information about sound data (Appendix B).
   
   *  Check out Bioacoustics App To-Do items below for initial objectives.
   
