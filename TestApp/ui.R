@@ -34,7 +34,7 @@ pageWithSidebar(
           uiOutput("minfreqlimit"),
           uiOutput("maxfreqlimit"),
           
-          ## Specrum
+          ## Spectrum
           div(style="display:inline-block", uiOutput("spectrumcheck")),
           div(style="display:inline-block", actionButton("specthelp", "", icon = icon("question-circle"))),
           uiOutput("spectrummin"),

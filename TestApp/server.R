@@ -99,6 +99,7 @@ output$wavinfo <- renderUI({
              "",
              wavtext)
     )
+    
   }
 })
 
@@ -465,20 +466,20 @@ output$WindowHelpInfo <- renderText({
                     In other words, the spectrum of a non-periodic signal where
                     leakage has occured will display energy (amplitude) at frequencies
                     that were not present in the original signal.</p>
-                <p><img src='non_periodic.jpg'></p>
+                <p><img src='non_periodic.jpg' width= 100% height=100%></p>
                 <p>Windowing a signal reduces DFT leakage. To avoid the sharp
                     discontinuities that appear by taking a non-periodic signal
                     and repeating it, a window function can be be applied to the signal
                     in the time domain to create a tapering effect of amplitude at both
                     the beginning and end of the sampling window. The windowed signal
                     is then repeated with no discontinuities and the DFT is applied.</p>
-                <p><img src='windowing.jpg'></p>
+                <p><img src='windowing.jpg' width= 100% height=100%></p>
                 <p>There are several different types of windows that can be used
                     to reduce spectral leakage. A few common ones and their spectrum
                     can be seen below. The choice of which window to use is usually
                     based on a trade off between side lobe effects (i.e. leakage)
                     and main lobe width (i.e. loss in frequency resolution).</p>
-                <p><img src='WindowFn-Pic.jpeg'></p>
+                <p><img src='WindowFn-Pic.jpeg' width= 100% height=100%></p>
                 <p>It is important to remember that the time and frequency resolution 
                    of a spectrogram are inversely related and dependent on window 
                    length (the number of samples used for the DFT). If the window 
@@ -509,7 +510,7 @@ output$SampHelpInfo <- renderText({
                     sine wave. The continuous 7 kHz sinusoid is aliased by a 1 kHz
                     digitized wave. This will result in a misrepresentation of the frequency
                     content of the signal.</p>
-                <p><img src='SamplingRateHelpPic.jpeg'></p>")
+                <p><img src='SamplingRateHelpPic.jpeg' width= 100% height=100%></p>")
         
     }
 })
@@ -554,7 +555,7 @@ output$OvlpHelpInfo <- renderText({
                     while useful, the overlap solution also increases the number of
                     DFTs to compute by a factor of 100/(100-overlap). This can 
                     take a lot of computing power.</p>
-               <p><img src='OverlappingHelpPic.jpeg'></p>")
+               <p><img src='OverlappingHelpPic.jpeg' width= 100% height=100%></p>")
         
     }
 })
