@@ -816,16 +816,21 @@ output$spectro <- renderPlot({
 
 
 output$audioplay <- renderUI({
-    
-    # inFile <- input$file1
-    inFile <- values$file1
+  
+    #inFile <- input$file1
+    inFile <- filevalues$file1
     ### Read .wav file in ###
     if (!is.null(inFile$datapath) & input$file2 == 1) {
+        filetitle <- filevalues$file1$name
         wav <- readWave(inFile$datapath)
-        
+        savewav(wav, filename = "tempFile.wav")
+        file.move("tempFile.wav", "www", overwrite = TRUE)
         h3("Audio Playback",
            br(),
-           tags$audio(src = inFile$datapath, type = "audio/wav", controls = "controls"))
+           tags$audio(src = "tempFile.wav", 
+                           type = "audio/wav", 
+                           controls = "controls"))
+        
     } else if (input$file2 != 1) {
         wav <- switch(input$file2,
                       "2" = sine1,
@@ -836,12 +841,20 @@ output$audioplay <- renderUI({
                       "7" = whale,
                       "8" = dolphin,
                       "9" = noise)
-        
+        savewav(wav, filename = "tempFile.wav")
+        file.move("tempFile.wav", "www", overwrite = TRUE)
         h3("Audio Playback",
            br(),
-           tags$audio(src = wav, type = "audio/wav", controls = "controls"))
+           tags$audio(src = "tempFile.wav", 
+                           type = "audio/wav", 
+                           controls = "controls"))
     }
 })
 
-  
+# delete temporary files created for audio play
+session$onSessionEnded(function() {
+    if (file.exists("www/tempFile.wav")) 
+        file.remove("www/tempFile.wav")
+})
+
 })

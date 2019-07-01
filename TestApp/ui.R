@@ -75,8 +75,9 @@ pageWithSidebar(
         
         uiOutput("OvlpHelpInfo"),
         
-        uiOutput("ZpHelpInfo")
+        uiOutput("ZpHelpInfo"),
 
+        uiOutput("audioplay")
         # textOutput("file1"),
         # textOutput("file2"),
         # textOutput("windowchk"),
@@ -88,6 +89,6 @@ pageWithSidebar(
         # textOutput("speccheck"),
         # textOutput("specmin"),
         # textOutput("specmax")
-        # uiOutput("audioplay")
+         
     )
 )
