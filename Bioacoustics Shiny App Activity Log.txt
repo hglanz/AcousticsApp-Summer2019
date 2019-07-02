@@ -22,4 +22,7 @@ Week 1:
 	-Worked on fixing stylistic problems with the app
 		-Made images in the help options align with text and adjust based on screen size
 		-Researched font size/style problem
-
+Week 2:
+	- Began Researching audio playback
+		- Got a working version of the app's playback on Google Chrome
+		- Researched how to get the wav files to play on RStudio webpage
