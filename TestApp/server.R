@@ -4,6 +4,7 @@ library(tuneR)
 library(plotly)
 library(shinyalert)
 library(grid)
+library(filesstrings)
 
 
 seed = as.numeric(Sys.time())
@@ -745,7 +746,7 @@ output$spectro <- renderPlot({
       palette <- spectro.colors
       scalefontlab <- 1
       scalelab <- "Amplitude\n(dB)"
-      scalecexlab <- 0.75
+      scalecexlab <- 0.85
       collab <- "black"
       colaxis <- "black"
       rm(myinput)
@@ -779,6 +780,9 @@ output$spectro <- renderPlot({
               tlim = c(input$mintime, input$maxtime),
               flim = c(input$minfreq, input$maxfreq),
               main = paste("Spectrogram of", filetitle),
+              font.main = 1,
+              cex.main= 1.7,
+              cex.lab=1.3,
               wn = window_choice,
               zp = zp_choice,
               ovlp = ovlp_choice,
@@ -808,7 +812,8 @@ output$spectro <- renderPlot({
       oscillo(wav, 
               f = samprate_choice,
               from = input$mintime,
-              to = input$maxtime)
+              to = input$maxtime,
+              cexlab = 0.87)
       abline(v = specmin_choice, col = "red", lty = 2)
       abline(v = specmax_choice, col = "red", lty = 2)
   }

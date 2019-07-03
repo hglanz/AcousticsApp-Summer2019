@@ -6,7 +6,7 @@ spectro_hg <- function (wave, f, wl = 512, wn = "hanning", zp = 0, ovlp = 0,
           colbg = "white", colgrid = "black", colaxis = "black", collab = "black", 
           cexlab = 1, cexaxis = 1, tlab = "Time (s)", flab = "Frequency (kHz)", 
           alab = "Amplitude", scalelab = "Amplitude\n(dB)", main = NULL, 
-          scalefontlab = 1, scalecexlab = 0.75, axisX = TRUE, axisY = TRUE, 
+          scalefontlab = 1, scalecexlab = 0.75, axisX = TRUE, axisY = TRUE,
           tlim = NULL, trel = TRUE, flim = NULL, flimd = NULL, widths = c(6, 
                                                                           1), heights = c(3, 1), oma = rep(0, 4), listen = FALSE, 
           ...) 
