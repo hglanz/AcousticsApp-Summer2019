@@ -25,4 +25,12 @@ Week 1:
 Week 2:
 	- Began Researching audio playback
 		- Got a working version of the app's playback on Google Chrome
-		- Researched how to get the wav files to play on RStudio webpage
+		- Fixed font differences in the app
+		- Published shinyapp to my own account
+			-audio works everywhere but Safari browser
+		- Researched how to get the wav files to play on RStudio webpage, potential solutions:
+			-convert wav to mp3
+			-if can't convert using R code, run a shell script to convert
+			-use beepr() package
+		
+			
