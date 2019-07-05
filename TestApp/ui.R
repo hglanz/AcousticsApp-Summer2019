@@ -24,8 +24,10 @@ pageWithSidebar(
         conditionalPanel("output.filechosen == true",
           # h4("Native Information About .wav File:"),
           br(),
-          
           uiOutput("wavinfo"),
+          
+          br(),
+          uiOutput("audioplay"),
           
           br(),
           uiOutput("mintimelimit"),
@@ -75,9 +77,9 @@ pageWithSidebar(
         
         uiOutput("OvlpHelpInfo"),
         
-        uiOutput("ZpHelpInfo"),
+        uiOutput("ZpHelpInfo")
 
-        uiOutput("audioplay")
+        
         # textOutput("file1"),
         # textOutput("file2"),
         # textOutput("windowchk"),
