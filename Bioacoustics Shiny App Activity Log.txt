@@ -33,4 +33,16 @@ Week 2:
 			-if can't convert using R code, run a shell script to convert
 			-use beepr() package
 		
-			
+Week 3:
+	- Worked on Audio Play starting and ending at a certain time
+		- now it displays the time the audio is set to and is also synced with the spectrogram
+		- it generates a new audio that is shorter rather than just move the curser so we can set an end date as well
+	- researched different segmentation or change detection methods
+	- added a new tab for segmentation
+		- using autodetec() from warbleR
+			- a bit on the slower side
+		- added Min/Max duration, amplitude threshold, and min/max frequency to the sidebar
+		- added help buttons to explain each item on the sidebar
+		- generates graph but doesn't always do a great job segmenting
+		- good example is dolphin file with min time = 0.2 seconds
+	- rounded numbers on slidebars 
