@@ -46,3 +46,9 @@ Week 3:
 		- generates graph but doesn't always do a great job segmenting
 		- good example is dolphin file with min time = 0.2 seconds
 	- rounded numbers on slidebars 
+	- made 2 red lines thicker/bolder
+		- also added that to the spectrogram
+ 	- Made formula in text stand out more in overlapping help
+ 	- Changed "loosing" to "losing" in zero padding help
+	- potentially fixed max db being 0
+		- unsure of the lower limit
