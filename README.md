@@ -80,27 +80,69 @@ The objective of this summer research is to develop, expand, and polish an R Shi
   
   **6. Bioacoustics App To-Do Items and Possible Bugs?**
   
-  *  Hover button for native info doesn't always work after changing parameters or for certain .wav files. Why? Fix?
+  * Additions to the app (most important to least important):
   
-  *  Make the max dB always print 0dB.
+    i. Make the 3 graphs (spectrogram, oscillogram, spectrum) interactive via playback button and zoom feature
   
-  *  Why doesn't spectrum work with dolphin .wav file?
+    ii. For the spectrum
+    
+        a. 2 red lines should be thicker/bolder
+        
+        b. Could be interactive via dragging of red lines by user
+        
+        c. max dB should be 0 always
+        
+        d. Horizontal black lines on spectrogram should be on spectrum too
+        
+        e. Option to specify start time and duration instead of start time and end time?
+        
+    iii. Button to describe spectrogram with a visualization (TO-DO for Maddie)
+    
+    iv. Reorganize/condense inputs on left. Could some min/max pairs be on the same line?
+    
+    v. Sections in input panel: General Information, Extra Options
+    
+    vi. Loading image while graphs are being created? Not sure if this is possible.
+    
+  * Things to fix on the app (most important to least important):
   
-  *  Make all fonts the same.
-  
-  *  Fix picture widths within the help options.
-  
-  *  Cite authors of certain pictures.
-  
-  *  Clickable zoom feature (oscillogram, spectrogram, or spectrum)?
-  
-  *  Why won't certain sample rates work for marine related files?
-  
-  *  Choosing a window function should change the spectrum. Why doesn't this happen right now?
-  
-  *  Fix the noise file.
-  
-  *  Better error messages.
-  
-  *  Add playback button with audio.
+    i. Spectrum:
+    
+        a. Why doesn't it show amplitude for all frequences in dolphin file?
+        
+        b. Choosing a different window function should change both the spectrum and the spectrogram, but it currently doesn't change the spectrum
+        
+    ii. Help Options:
+    
+        a. All pictures fit on screen without horizontal scroll bar (this is done)
+        
+        b. Make pictures smaller and consistent across help options (use size of right graph in windowed signal as template)
+        
+        c. f_s in sampling rate should be an actual subscript
+        
+        d. Some sampling rates don't work for marine related files. Why not?...and fix.
+        
+        e. Get rid of title "7-series graph" in window function help (use windows.R)
+        
+        f. Move the 7th graph to right to get rid of overlap with 6 graphs in window function help (use windows.R)
+        
+        g. Spectrum should have x-axis only go up to 0.4999 (use windows.R) in window function help
+        
+        h. Need legend in 7th graph (right) in window function help (use windows.R)
+        
+        i. Make formula in text stand out more in overlapping help
+        
+        j. Change "loosing" to "losing" in zero padding help
+        
+    iii. General Fixes:
+    
+        a. Better error messages
+        
+        b. Make sure hover button works for everything
+        
+        c. Noise file needs fixing; currently doesn't work
+        
+        d. Fonts need to be the same (done)
+        
+        e. Clicking "Reset Inputs" should reset the whole page/app
   
