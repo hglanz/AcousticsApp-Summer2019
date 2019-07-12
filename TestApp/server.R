@@ -805,7 +805,7 @@ output$spectro <- renderPlot({
                          xaxt = "n",
                          main = "Spectrum",
                          alab = "Amplitude (dB)",
-                         alim = c(min(z), 0),
+                         #alim = c(min(z), 0),
                          cex.axis = 1.5)
         spectcks <- seq(from = round(min(specvals[,2])), to = 0, by = 5)
         axis(1, at = spectcks, labels = spectcks, tck = -.025, pos = input$minfreq)
