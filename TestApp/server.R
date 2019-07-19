@@ -112,7 +112,7 @@ output$mintimelimit <- renderUI({
     if (!is.null(inFile)) {
         wav <- readWave(inFile)
         
-        numericInput("mintime", label = "Minimum Time (s):",
+        numericInput("mintime", label = "Min Time (s):",
                      value = 0, min = 0, max = length(wav@left)/wav@samp.rate)
     } else {
         wav <- switch(filevalues$file2,
@@ -125,7 +125,7 @@ output$mintimelimit <- renderUI({
                       "8" = dolphin,
                       "9" = noise)
         
-        numericInput("mintime", label = "Minimum Time (s):",
+        numericInput("mintime", label = "Min Time (s):",
                      value = 0, min = 0, max = length(wav@left)/wav@samp.rate)
     }
 })
@@ -137,7 +137,7 @@ output$maxtimelimit <- renderUI({
     if (!is.null(inFile)) {
         wav <- readWave(inFile)
         
-        numericInput("maxtime", label = "Maximum Time (s):",
+        numericInput("maxtime", label = "Max Time (s):",
                      value = round(length(wav@left)/wav@samp.rate,3), min = 0, max = length(wav@left)/wav@samp.rate)
     } else {
         wav <- switch(filevalues$file2,
@@ -150,7 +150,7 @@ output$maxtimelimit <- renderUI({
                       "8" = dolphin,
                       "9" = noise)
         
-        numericInput("maxtime", label = "Maximum Time (s):",
+        numericInput("maxtime", label = "Max Time (s):",
                      value = round(length(wav@left)/wav@samp.rate,3), min = 0, max = length(wav@left)/wav@samp.rate)
     }
 })
@@ -167,10 +167,10 @@ output$minfreqlimit <- renderUI({
         
         maxfreq_pos <- which(diff(rev(apply(sp$amp, 1, max) <= -29)) < 0)[1]
         if (length(maxfreq_pos) == 0) {
-            numericInput("minfreq", label = "Minimum Frequency (kHz):",
+            numericInput("minfreq", label = "Min Frequency (kHz):",
                          value = 0, min = 0, max = rev(sp$freq)[1])
         } else {
-            numericInput("minfreq", label = "Minimum Frequency (kHz):",
+            numericInput("minfreq", label = "Min Frequency (kHz):",
                          value = 0, min = 0, max = min(rev(sp$freq)[maxfreq_pos]+.5, max(sp$freq)))
         }
     } else {
@@ -188,10 +188,10 @@ output$minfreqlimit <- renderUI({
         
         maxfreq_pos <- which(diff(rev(apply(sp$amp, 1, max) <= -29)) < 0)[1]
         if (length(maxfreq_pos) == 0) {
-            numericInput("minfreq", label = "Minimum Frequency (kHz):",
+            numericInput("minfreq", label = "Min Frequency (kHz):",
                          value = 0, min = 0, max =  rev(sp$freq)[1])
         } else {
-            numericInput("minfreq", label = "Minimum Frequency (kHz):",
+            numericInput("minfreq", label = "Min Frequency (kHz):",
                          value = 0, min = 0, max = min(rev(sp$freq)[maxfreq_pos]+.5, max(sp$freq)))
         }
     }
@@ -208,10 +208,10 @@ output$maxfreqlimit <- renderUI({
         
         maxfreq_pos <- which(diff(rev(apply(sp$amp, 1, max) <= -29)) < 0)[1]
         if (length(maxfreq_pos) == 0) {
-            numericInput("maxfreq", label = "Maximum Frequency (kHz):",
+            numericInput("maxfreq", label = "Max Frequency (kHz):",
                          value = round(rev(sp$freq)[1]),3)
         } else {
-            numericInput("maxfreq", label = "Maximum Frequency (kHz):",
+            numericInput("maxfreq", label = "Max Frequency (kHz):",
                          value = round(min(rev(sp$freq)[maxfreq_pos]+.5, max(sp$freq)),3))
         }
     } else {
@@ -229,10 +229,10 @@ output$maxfreqlimit <- renderUI({
         
         maxfreq_pos <- which(diff(rev(apply(sp$amp, 1, max) <= -29)) < 0)[1]
         if (length(maxfreq_pos) == 0) {
-            numericInput("maxfreq", label = "Maximum Frequency (kHz):",
+            numericInput("maxfreq", label = "Max Frequency (kHz):",
                          value = round(rev(sp$freq)[1],3))
         } else {
-            numericInput("maxfreq", label = "Maximum Frequency (kHz):",
+            numericInput("maxfreq", label = "Max Frequency (kHz):",
                          value = round(min(rev(sp$freq)[maxfreq_pos]+.5, max(sp$freq)),3))
         }
     }
@@ -498,7 +498,7 @@ output$SampHelpInfo <- renderText({
     times <- input$samphelp
     if (times %% 2 == 1) {
         return("<p><b>Sampling Rate Help</b></p>
-               <p>Sampling rate (or sampling frequency), f_s, is 
+               <p>Sampling rate (or sampling frequency), f<sub>s</sub>, is 
                the number of sampled points per second taken from a continuous
                signal to create a digital signal. It is typically measured in Hz (cycles per second).</p>
                <p>Perfect reconstruction or representation of a signal is possible
@@ -797,16 +797,19 @@ output$spectro <- renderPlot({
                          col = "red",
                          lwd=3,
                          plot = 2,
+                         wn = window_choice,
                          flab = "", yaxt = "n",
                          from = specmin_choice,
                          to = specmax_choice,
-                         flim = c(input$minfreq, input$maxfreq),
+                         collevels = collevels,
+                         collab = collab,
+                         flim = c(5, input$maxfreq),
                          dB = "max0",
                          xaxt = "n",
                          main = "Spectrum",
                          alab = "Amplitude (dB)",
-                         #alim = c(min(z), 0),
-                         cex.axis = 1.5)
+                         cex.axis = 1.5,
+                         )
         spectcks <- seq(from = round(min(specvals[,2])), to = 0, by = 5)
         axis(1, at = spectcks, labels = spectcks, tck = -.025, pos = input$minfreq)
         # text(median(spectcks), -.05, "Amplitude (dB)", cex = 1.5)
@@ -838,7 +841,6 @@ output$audioplay <- renderUI({
             maxtime_choice <- length(wav@left)/wav@samp.rate
         }
         savewav(wav, filename = "www/tempFile.wav")
-        print(getwd())
         cut_wav <- readWave("www/tempFile.wav", from = mintime_choice, to = maxtime_choice, units = "seconds")
         file.remove("www/tempFile.wav")
         savewav(cut_wav, filename = "www/tempFile.wav")
@@ -890,7 +892,7 @@ output$minDurlimit <- renderUI({
     if (!is.null(inFile)) {
         wav <- readWave(inFile)
         
-        numericInput("minDur", label = "Minimum Duration (s):",
+        numericInput("minDur", label = "Min Duration (s):",
                      value = 0, min = 0, max = length(wav@left)/wav@samp.rate)
     } else {
         wav <- switch(filevalues$file2,
@@ -903,7 +905,7 @@ output$minDurlimit <- renderUI({
                       "8" = dolphin,
                       "9" = noise)
         
-        numericInput("minDur", label = "Minimum Duration (s):",
+        numericInput("minDur", label = "Min Duration (s):",
                      value = 0, min = 0, max = length(wav@left)/wav@samp.rate)
     }
 })
@@ -915,7 +917,7 @@ output$maxDurlimit <- renderUI({
     if (!is.null(inFile)) {
         wav <- readWave(inFile)
         
-        numericInput("maxDur", label = "Maximum Duration (s):",
+        numericInput("maxDur", label = "Max Duration (s):",
                      value = round(length(wav@left)/wav@samp.rate,3), min = 0, max = length(wav@left)/wav@samp.rate)
     } else {
         wav <- switch(filevalues$file2,
@@ -928,7 +930,7 @@ output$maxDurlimit <- renderUI({
                       "8" = dolphin,
                       "9" = noise)
         
-        numericInput("maxDur", label = "Maximum Duration (s):",
+        numericInput("maxDur", label = "Max Duration (s):",
                      value = round(length(wav@left)/wav@samp.rate,3), min = 0, max = length(wav@left)/wav@samp.rate)
     }
 })
@@ -944,10 +946,10 @@ output$minbplimit <- renderUI({
         
         maxbp_pos <- which(diff(rev(apply(sp$amp, 1, max) <= -29)) < 0)[1]
         if (length(maxbp_pos) == 0) {
-            numericInput("minbp", label = "Lower Limit Frequency (in kHz):",
+            numericInput("minbp", label = "Lower Frequency (in kHz):",
                          value = 0, min = 0, max = rev(sp$freq)[1])
         } else {
-            numericInput("minbp", label = "Lower Limit Frequency (in kHz):",
+            numericInput("minbp", label = "Lower Frequency (in kHz):",
                          value = 0, min = 0, max = min(rev(sp$freq)[maxbp_pos]+.5, max(sp$freq)))
         }
     } else {
@@ -965,10 +967,10 @@ output$minbplimit <- renderUI({
         
         maxbp_pos <- which(diff(rev(apply(sp$amp, 1, max) <= -29)) < 0)[1]
         if (length(maxbp_pos) == 0) {
-            numericInput("minbp", label = "Lower Limit Frequency (kHz):",
+            numericInput("minbp", label = "Lower Frequency (kHz):",
                          value = 0, min = 0, max =  rev(sp$freq)[1])
         } else {
-            numericInput("minbp", label = "Lower Limit Frequency (kHz):",
+            numericInput("minbp", label = "Lower Frequency (kHz):",
                          value = 0, min = 0, max = min(rev(sp$freq)[maxbp_pos]+.5, max(sp$freq)))
         }
     }
@@ -985,10 +987,10 @@ output$maxbplimit <- renderUI({
         
         maxfreq_pos <- which(diff(rev(apply(sp$amp, 1, max) <= -29)) < 0)[1]
         if (length(maxfreq_pos) == 0) {
-            numericInput("maxbp", label = "Upper Limit Frequency (kHz):",
+            numericInput("maxbp", label = "Upper Frequency (kHz):",
                          value = round(rev(sp$freq)[1],3))
         } else {
-            numericInput("maxbp", label = "Upper Limit Frequency (kHz):",
+            numericInput("maxbp", label = "Upper Frequency (kHz):",
                          value = round(min(rev(sp$freq)[maxfreq_pos]+.5, max(sp$freq)),3))
         }
     } else {
@@ -1006,10 +1008,10 @@ output$maxbplimit <- renderUI({
         
         maxfreq_pos <- which(diff(rev(apply(sp$amp, 1, max) <= -29)) < 0)[1]
         if (length(maxfreq_pos) == 0) {
-            numericInput("maxbp", label = "Upper Limit Frequency (kHz):",
+            numericInput("maxbp", label = "Upper Frequency (kHz):",
                          value = round(rev(sp$freq)[1],3))
         } else {
-            numericInput("maxbp", label = "Upper Limit Frequency (kHz):",
+            numericInput("maxbp", label = "Upper Frequency (kHz):",
                          value = round(min(rev(sp$freq)[maxfreq_pos]+.5, max(sp$freq)),3))
         }
     }
@@ -1040,25 +1042,15 @@ output$threshold <- renderUI({
         }
 })
 
-output$MinDurHelpInfo <- renderText({
-    times <- input$minDurhelp
+output$MinMaxDurHelpInfo <- renderText({
+    times <- input$minmaxDurhelp
     if (times %% 2 == 1) {
-        return("<p>Numeric vector of length 1 giving the shortest duration (in seconds) 
-                of the signals to be detected. 
-                It removes signals below that threshold.</p>")
+        return("<p>Numeric vector giving duration (in seconds) of the signals to be detected, 
+               removing signals outside the limits.</p>")
         
     }
 })
 
-output$MaxDurHelpInfo <- renderText({
-    times <- input$maxDurhelp
-    if (times %% 2 == 1) {
-        return("<p>Numeric vector of length 1 giving the longest duration (in seconds) 
-               of the signals to be detected. 
-               It removes signals above that threshold.</p>")
-        
-    }
-})
 
 output$thresHelpInfo <- renderText({
     times <- input$threshelp
@@ -1143,7 +1135,6 @@ output$segment <- renderImage({
         }
         
         ### Plot Segmentation ###
-        print(filetitle)
         savewav(wav, filename = filetitle)
         ad <- autodetec(flist = filetitle, threshold = 5, 
                         mindur = minDur_choice, maxdur = maxDur_choice,

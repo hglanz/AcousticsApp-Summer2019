@@ -24,16 +24,23 @@ shinyUI(navbarPage("Acoustic Analysis",
                                                           uiOutput("audioplay"),
                                                           
                                                           br(),
-                                                          uiOutput("mintimelimit"),
-                                                          uiOutput("maxtimelimit"),
-                                                          uiOutput("minfreqlimit"),
-                                                          uiOutput("maxfreqlimit"),
+                                                          div(style="display:inline-block", uiOutput("mintimelimit")),
+                                                          div(style="display:inline-block", uiOutput("maxtimelimit")),
+                                                          br(),
+                                                          div(style="display:inline-block", uiOutput("minfreqlimit")),
+                                                          div(style="display:inline-block", uiOutput("maxfreqlimit")),
+                                                          #uiOutput("mintimelimit"),
+                                                          #uiOutput("maxtimelimit"),
+                                                          #uiOutput("minfreqlimit"),
+                                                          #uiOutput("maxfreqlimit"),
                                                           
                                                           ## Spectrum
                                                           div(style="display:inline-block", uiOutput("spectrumcheck")),
                                                           div(style="display:inline-block", actionButton("specthelp", "", icon = icon("question-circle"))),
-                                                          uiOutput("spectrummin"),
-                                                          uiOutput("spectrummax"),
+                                                          div(style="display:inline-block", uiOutput("spectrummin")),
+                                                          div(style="display:inline-block", uiOutput("spectrummax")),
+                                                          #uiOutput("spectrummin"),
+                                                          #uiOutput("spectrummax"),
                                                           
                                                           ## Sampling Rate
                                                           div(style="display:inline-block", uiOutput("sampcheck")),
@@ -96,18 +103,17 @@ shinyUI(navbarPage("Acoustic Analysis",
                                          br(),
                                          conditionalPanel("output.filechosen == true",
                                                           div(style="display:inline-block", uiOutput("minDurlimit")),
-                                                          div(style="display:inline-block", 
-                                                              actionButton("minDurhelp", "", icon = icon("question-circle"))),
-                                                          uiOutput("MinDurHelpInfo"),
                                                           div(style="display:inline-block", uiOutput("maxDurlimit")),
                                                           div(style="display:inline-block", 
-                                                              actionButton("maxDurhelp", "", icon = icon("question-circle"))),
-                                                          uiOutput("MaxDurHelpInfo"),
-                                                          uiOutput("minbplimit"),
-                                                          uiOutput("maxbplimit"),
-                                                          div(style="display:inline-block", 
+                                                              actionButton("minmaxDurhelp", "", icon = icon("question-circle"))),
+                                                          uiOutput("MinMaxDurHelpInfo"),
+                                                          
+                                                          div(style="display:inline-block", uiOutput("minbplimit")),
+                                                          div(style="display:inline-block", uiOutput("maxbplimit")),
+                                                          div(style="display:inline-block",         
                                                               actionButton("bphelp", "", icon = icon("question-circle"))),
                                                           uiOutput("bpHelpInfo"),
+                                                          
                                                           div(style="display:inline-block", uiOutput("threshold")),
                                                           div(style="display:inline-block", 
                                                               actionButton("threshelp", "", icon = icon("question-circle"))),
@@ -115,8 +121,10 @@ shinyUI(navbarPage("Acoustic Analysis",
                                          
                             ),
                             mainPanel(width = 9,
-                                      imageOutput("segment", width = 30, height = 10))
-)))
+                                      imageOutput("segment", width = 30, height = 10))),
+                   
+            tabPanel("About", "This page is left blank temporarely.")
+))
 
 
 
