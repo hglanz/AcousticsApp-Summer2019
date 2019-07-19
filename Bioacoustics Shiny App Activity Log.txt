@@ -50,5 +50,19 @@ Week 3:
 		- also added that to the spectrogram
  	- Made formula in text stand out more in overlapping help
  	- Changed "loosing" to "losing" in zero padding help
+
+Week 4:
 	- potentially fixed max db being 0
-		- unsure of the lower limit
+		- unsure of the lower limit (using alim)
+		- need an example of when this happens
+	- researched horizontal black lines on spectrogram to also add to spectrum
+		- built-in feature for spectro, doesn't exist for spec, can make them artificially for both but doing it just 			for spectrum won't match the spectro. Look at difference between the sin files
+	- need more details for "Option to specify start time and duration instead of start time and end time"
+	- Condensed inputs on left
+		- made min/max pairs be on the same line
+	- researched why doesn't it show amplitude for all frequences in dolphin file
+		- potential solution would be to do a seperate if statement just for the dolphin files so there's no flim
+	- fixed: "Choosing a different window function should change both the spectrum and the spectrogram, but it currently 		doesn't change the spectrum"
+	- need more details: "Make pictures smaller and consistent across help options (use size of right graph in windowed 		signal as template)" 
+	- fixed: f_s in sampling rate should be an actual subscript
+	- Windows.R doesn't work when run by itself, why? 
