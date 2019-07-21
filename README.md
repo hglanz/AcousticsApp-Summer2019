@@ -82,11 +82,11 @@ The objective of this summer research is to develop, expand, and polish an R Shi
   
   * Additions to the app (most important to least important):
   
-    i. Make the 3 graphs (spectrogram, oscillogram, spectrum) interactive via playback button and zoom feature
+    i. Make the 3 graphs (spectrogram, oscillogram, spectrum) interactive via playback button (done) and zoom feature 
   
     ii. For the spectrum
     
-        a. 2 red lines should be thicker/bolder
+        a. 2 red lines should be thicker/bolder (done)
         
         b. Could be interactive via dragging of red lines by user
         
@@ -98,7 +98,7 @@ The objective of this summer research is to develop, expand, and polish an R Shi
         
     iii. Button to describe spectrogram with a visualization (TO-DO for Maddie)
     
-    iv. Reorganize/condense inputs on left. Could some min/max pairs be on the same line?
+    iv. Reorganize/condense inputs on left. Could some min/max pairs be on the same line? (done)
     
     v. Sections in input panel: General Information, Extra Options
     
@@ -110,7 +110,8 @@ The objective of this summer research is to develop, expand, and polish an R Shi
     
         a. Why doesn't it show amplitude for all frequences in dolphin file?
         
-        b. Choosing a different window function should change both the spectrum and the spectrogram, but it currently doesn't change the spectrum
+        b. Choosing a different window function should change both the spectrum and the spectrogram, 
+           but it currently doesn't change the spectrum (done)
         
     ii. Help Options:
     
@@ -118,7 +119,7 @@ The objective of this summer research is to develop, expand, and polish an R Shi
         
         b. Make pictures smaller and consistent across help options (use size of right graph in windowed signal as template)
         
-        c. f_s in sampling rate should be an actual subscript
+        c. f_s in sampling rate should be an actual subscript (done)
         
         d. Some sampling rates don't work for marine related files. Why not?...and fix.
         
@@ -130,9 +131,9 @@ The objective of this summer research is to develop, expand, and polish an R Shi
         
         h. Need legend in 7th graph (right) in window function help (use windows.R)
         
-        i. Make formula in text stand out more in overlapping help
+        i. Make formula in text stand out more in overlapping help (done)
         
-        j. Change "loosing" to "losing" in zero padding help
+        j. Change "loosing" to "losing" in zero padding help (done)
         
     iii. General Fixes:
     
