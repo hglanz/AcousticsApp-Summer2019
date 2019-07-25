@@ -6,6 +6,9 @@ library(shinyalert)
 library(grid)
 library(filesstrings)
 library(warbleR)
+library(DT)
+library(soundgen)
+library(dplyr)
 
 
 seed = as.numeric(Sys.time())
@@ -468,7 +471,7 @@ output$WindowHelpInfo <- renderText({
                In other words, the spectrum of a non-periodic signal where
                leakage has occured will display energy (amplitude) at frequencies
                that were not present in the original signal.</p>
-               <p><img src='non_periodic.jpg' width= 100% height=100%></p>
+               <p><img src='non_periodic.jpg' width= 60% height=60%></p>
                <p>Windowing a signal reduces DFT leakage. To avoid the sharp
                discontinuities that appear by taking a non-periodic signal
                and repeating it, a window function can be be applied to the signal
@@ -512,7 +515,7 @@ output$SampHelpInfo <- renderText({
                sine wave. The continuous 7 kHz sinusoid is aliased by a 1 kHz
                digitized wave. This will result in a misrepresentation of the frequency
                content of the signal.</p>
-               <p><img src='SamplingRateHelpPic.jpeg' width= 100% height=100%></p>")
+               <p><img src='SamplingRateHelpPic.jpeg' width= 80% height=80%></p>")
         
     }
 })
@@ -557,7 +560,7 @@ output$OvlpHelpInfo <- renderText({
                while useful, the overlap solution also increases the number of
                DFTs to compute by a factor of <b>100/(100-overlap)</b>. This can 
                take a lot of computing power.</p>
-               <p><img src='OverlappingHelpPic.jpeg' width= 100% height=100%></p>")
+               <p><img src='OverlappingHelpPic.jpeg' width= 70% height=70%></p>")
         
     }
 })
@@ -808,8 +811,8 @@ output$spectro <- renderPlot({
                          xaxt = "n",
                          main = "Spectrum",
                          alab = "Amplitude (dB)",
-                         cex.axis = 1.5,
-                         )
+                         cex.axis = 1.5
+        )
         spectcks <- seq(from = round(min(specvals[,2])), to = 0, by = 5)
         axis(1, at = spectcks, labels = spectcks, tck = -.025, pos = input$minfreq)
         # text(median(spectcks), -.05, "Amplitude (dB)", cex = 1.5)
@@ -885,15 +888,16 @@ output$audioplay <- renderUI({
     }
     })
     
-output$minDurlimit <- renderUI({
+
+output$shortestSyl <- renderUI({
     
     inFile <- filevalues$file1$datapath
     ### Read .wav file in ###
     if (!is.null(inFile)) {
         wav <- readWave(inFile)
         
-        numericInput("minDur", label = "Min Duration (s):",
-                     value = 0, min = 0, max = length(wav@left)/wav@samp.rate)
+        numericInput("shortestSyl", label = "Min Length of Syllables (ms):",
+                     value = 40, min = 0, max = length(wav@left)/wav@samp.rate*1000)
     } else {
         wav <- switch(filevalues$file2,
                       "2" = sine1,
@@ -905,117 +909,11 @@ output$minDurlimit <- renderUI({
                       "8" = dolphin,
                       "9" = noise)
         
-        numericInput("minDur", label = "Min Duration (s):",
-                     value = 0, min = 0, max = length(wav@left)/wav@samp.rate)
+        numericInput("shortestSyl", label = "Min Length of Syllables (ms):",
+                     value = 40, min = 0, max = length(wav@left)/wav@samp.rate*1000)
     }
 })
 
-output$maxDurlimit <- renderUI({
-    
-    inFile <- filevalues$file1$datapath
-    ### Read .wav file in ###
-    if (!is.null(inFile)) {
-        wav <- readWave(inFile)
-        
-        numericInput("maxDur", label = "Max Duration (s):",
-                     value = round(length(wav@left)/wav@samp.rate,3), min = 0, max = length(wav@left)/wav@samp.rate)
-    } else {
-        wav <- switch(filevalues$file2,
-                      "2" = sine1,
-                      "3" = sine2,
-                      "4" = sine3,
-                      "5" = square,
-                      "6" = triangle,
-                      "7" = whale,
-                      "8" = dolphin,
-                      "9" = noise)
-        
-        numericInput("maxDur", label = "Max Duration (s):",
-                     value = round(length(wav@left)/wav@samp.rate,3), min = 0, max = length(wav@left)/wav@samp.rate)
-    }
-})
-
-output$minbplimit <- renderUI({
-    
-    inFile <- filevalues$file1$datapath
-    ### Read .wav file in ###
-    if (!is.null(inFile)) {
-        wav <- readWave(inFile)
-        
-        sp <- spectro(wav, plot = F)
-        
-        maxbp_pos <- which(diff(rev(apply(sp$amp, 1, max) <= -29)) < 0)[1]
-        if (length(maxbp_pos) == 0) {
-            numericInput("minbp", label = "Lower Frequency (in kHz):",
-                         value = 0, min = 0, max = rev(sp$freq)[1])
-        } else {
-            numericInput("minbp", label = "Lower Frequency (in kHz):",
-                         value = 0, min = 0, max = min(rev(sp$freq)[maxbp_pos]+.5, max(sp$freq)))
-        }
-    } else {
-        wav <- switch(filevalues$file2,
-                      "2" = sine1,
-                      "3" = sine2,
-                      "4" = sine3,
-                      "5" = square,
-                      "6" = triangle,
-                      "7" = whale,
-                      "8" = dolphin,
-                      "9" = noise)
-        
-        sp <- spectro(wav, plot = F)
-        
-        maxbp_pos <- which(diff(rev(apply(sp$amp, 1, max) <= -29)) < 0)[1]
-        if (length(maxbp_pos) == 0) {
-            numericInput("minbp", label = "Lower Frequency (kHz):",
-                         value = 0, min = 0, max =  rev(sp$freq)[1])
-        } else {
-            numericInput("minbp", label = "Lower Frequency (kHz):",
-                         value = 0, min = 0, max = min(rev(sp$freq)[maxbp_pos]+.5, max(sp$freq)))
-        }
-    }
-})
-
-output$maxbplimit <- renderUI({
-    
-    inFile <- filevalues$file1$datapath
-    ### Read .wav file in ###
-    if (!is.null(inFile)) {
-        wav <- readWave(inFile)
-        
-        sp <- spectro(wav, plot = F)
-        
-        maxfreq_pos <- which(diff(rev(apply(sp$amp, 1, max) <= -29)) < 0)[1]
-        if (length(maxfreq_pos) == 0) {
-            numericInput("maxbp", label = "Upper Frequency (kHz):",
-                         value = round(rev(sp$freq)[1],3))
-        } else {
-            numericInput("maxbp", label = "Upper Frequency (kHz):",
-                         value = round(min(rev(sp$freq)[maxfreq_pos]+.5, max(sp$freq)),3))
-        }
-    } else {
-        wav <- switch(filevalues$file2,
-                      "2" = sine1,
-                      "3" = sine2,
-                      "4" = sine3,
-                      "5" = square,
-                      "6" = triangle,
-                      "7" = whale,
-                      "8" = dolphin,
-                      "9" = noise)
-        
-        sp <- spectro(wav, plot = F)
-        
-        maxfreq_pos <- which(diff(rev(apply(sp$amp, 1, max) <= -29)) < 0)[1]
-        if (length(maxfreq_pos) == 0) {
-            numericInput("maxbp", label = "Upper Frequency (kHz):",
-                         value = round(rev(sp$freq)[1],3))
-        } else {
-            numericInput("maxbp", label = "Upper Frequency (kHz):",
-                         value = round(min(rev(sp$freq)[maxfreq_pos]+.5, max(sp$freq)),3))
-        }
-    }
-})
 
 output$threshold <- renderUI({
         inFile <- filevalues$file1$datapath
@@ -1023,8 +921,8 @@ output$threshold <- renderUI({
         if (!is.null(inFile)) {
             wav <- readWave(inFile)
             
-            numericInput("threshold", label = "Amplitude Threshold (%):",
-                         value = 0, Inf)
+            numericInput("threshold", label = "Amplitude Threshold for Syllable Detection (%):",
+                         value = 0.9, 1)
             
         } else {
             wav <- switch(filevalues$file2,
@@ -1037,43 +935,68 @@ output$threshold <- renderUI({
                           "8" = dolphin,
                           "9" = noise)
             
-            numericInput("threshold", label = "Amplitude Threshold (%):",
-                         value = 0, Inf)
+            numericInput("threshold", label = "Amplitude Threshold:",
+                         value = 0.9, 1)
         }
 })
 
-output$MinMaxDurHelpInfo <- renderText({
-    times <- input$minmaxDurhelp
+
+output$syllablesHelpInfo <- renderText({
+    times <- input$syllablesHelp
     if (times %% 2 == 1) {
-        return("<p>Numeric vector giving duration (in seconds) of the signals to be detected, 
-               removing signals outside the limits.</p>")
+        return("<p>Syllables are defined as continuous 
+               segments with amplitude above a given threshold.</p>")
         
     }
 })
 
+output$burstsHelpInfo <- renderText({
+    times <- input$burstsHelp
+    if (times %% 2 == 1) {
+        return("<p>Bursts are defined as local maxima in amplitude 
+                    that are high enough both in absolute terms 
+               (relative to the global maximum) and with respect 
+               to the surrounding region (relative to local mimima).</p>")
+        
+    }
+})
 
 output$thresHelpInfo <- renderText({
-    times <- input$threshelp
+    times <- input$thresHelp
     if (times %% 2 == 1) {
-        return("<p>A numeric vector of length 1 
-               specifying the amplitude 
-               threshold for detecting signals (in %).</p>")
+        return("<p>Amplitude threshold for syllable detection 
+               as a proportion of global mean amplitude of smoothed envelope.</p>")
         
     }
 })
 
-output$bpHelpInfo <- renderText({
-    times <- input$bphelp
+#### Segmentation Help ####
+output$SegHelpInfo <- renderText({
+    times <- input$seghelp
     if (times %% 2 == 1) {
-        return("<p>Numeric vector of length 2 giving 
-               the lower and upper limits of a 
-               frequency bandpass filter (in kHz).</p>")
-        
+        return("<p><b>Spectrum Help</b></p>
+                <p>The following tab divides a sound file into separate “syllables” 
+                - continuous acoustic fragments separated by what we consider to be “silence”. 
+                This “silence” can often contain background noise. To look at the rate of syllables per 
+                second and their regularity, rather than the absolute duration of each syllable, 
+                the function finds bursts of acoustic energy - local maxima in amplitude envelope 
+                that are high enough both in absolute terms (relative to the global maximum) and 
+                with respect to the surrounding region (relative to local mimima). 
+                The spacing between bursts - the interburst interval - recovers the perceptually 
+                salient temporal structure of a bout of vocalizing, such as the number of 
+                syllables in a bout of a particular sound of interest, 
+                their average frequency, and regularity.The function segment(),
+                that is used here, looks for both syllables and bursts. Syllables are found first,
+                and then the median length of a syllable becomes the expected interburst interval,
+                guiding burst detection. The method operates with amplitude 
+                envelopes - smoothed contours of sound intensity. 
+                See vignette('acoustic_analysis', package = 'soundgen') for more details.</p>")
+    
     }
 })
 
 #### Segmentation ####
-output$segment <- renderImage({
+output$segment <- renderPlot({
     
     inFile <- filevalues$file1$datapath
     ### Read .wav file in ###
@@ -1109,53 +1032,80 @@ output$segment <- renderImage({
     }
     
     if (exists("wav")) {
-        ### Determine Duration Limits ###
-        if (!is.null(input$minDur) & !is.null(input$maxDur)) {
-            minDur_choice <- input$minDur
-            maxDur_choice <- input$maxDur
+        ### Determine Sampling Rate ###
+        if (!is.null(input$samprate)) {
+            samprate_choice <- as.numeric(input$samprate)
         } else {
-            minDur_choice <- 0
-            maxDur_choice <- length(wav@left)/wav@samp.rate
-        }
+            samprate_choice <- wav@samp.rate
         
-        ### Determine Freq Limits ###
-        if (!is.null(input$minbp) & !is.null(input$maxbp)) {
-            minbp_choice <- input$minbp
-            maxbp_choice <- input$maxbp
+        ### Determine Shortest Syllable ###
+        if (!is.null(input$shortestSyl)) {
+            shortestSyl_choice <- input$shortestSyl
+            
         } else {
-            minbp_choice <- 0
+            shortestSyl_choice <- 40
             
-            maxbp_pos <- which(diff(rev(apply(sp$amp, 1, max) <= -29)) < 0)[1]
-            if (length(maxbp_pos) == 0) {
-                maxbp_choice <- rev(sp$freq)[1]
-            } else {
-                maxbp_choice <- min(rev(sp$freq)[maxbp_pos]+.5, max(sp$freq))
-            }
+        }
+        ### Determine Inter Burst ###
+        if (!is.null(input$interburst)) {
+            interburst_choice <- input$interburst
             
+        } else {
+            interburst_choice <- NULL
+        }    
+        
+        ### Determine Threshold Limits ###
+        if (!is.null(input$threshold)) {
+            threshold_choice <- input$threshold
+        } else {
+            threshold_choice <- 0.9
         }
         
         ### Plot Segmentation ###
-        savewav(wav, filename = filetitle)
-        ad <- autodetec(flist = filetitle, threshold = 5, 
-                        mindur = minDur_choice, maxdur = maxDur_choice,
-                        bp=c(minbp_choice, maxbp_choice),
-                        env = "hil", ssmooth = 100, xl = 2, picsize = 2, res = 100, flim= c(1,11),
-                        osci= TRUE, wl = 300, ls = FALSE, set = TRUE, redo = TRUE)
+        savewav(wav, filename = "tempFile.wav")
+        segment <- segment("tempFile.wav", 
+                           plot = TRUE, 
+                           main = filetitle,
+                           shortestSyl = shortestSyl_choice,
+                           sylThres = threshold_choice,
+                           xlab = "Time (ms)")
         
-        filename <- list.files(pattern = ".jpeg", ignore.case = TRUE)
+        syllables <- segment$syllables
+        syllables <- syllables %>% dplyr::rename(Syllable = syllable, Start = start,
+                                          End = end, "Syllable Length" = sylLen, "Pause Length" = pauseLen)
+        bursts <- segment$bursts
+        bursts <- bursts %>% dplyr::rename(Time = time, Amplitude = ampl, "Interburst Interval" = interburstInt)
         
-        file.rename(filetitle, "tempFile.wav")
+        output$syllables <- DT::renderDataTable({
+            syllables},
+            rownames = FALSE,
+            options = list(pageLength = 5))
         
-        return(list(
-            src = filename,
-            filetype = "image/jpeg",
-            width = 700,
-            height = 400,
-            alt = "Segmmentation"))
+        output$bursts <- DT::renderDataTable({
+            bursts},
+            rownames = FALSE,
+            options = list(pageLength = 5))
         
-        
+        # Downloadable csv of selected dataset
+        output$downloadSyllables <- downloadHandler(
+            filename = function() {
+                paste(filetitle, "-syllables", ".csv", sep="")
+            },
+            content = function(file) {
+                write.csv(syllables, file)
+            }
+        )
+        output$downloadBursts <- downloadHandler(
+            filename = function() {
+                paste(filetitle, "-bursts", ".csv", sep="")
+            },
+            content = function(file) {
+                write.csv(bursts, file)
+            }
+        )
+       
     }
-}, deleteFile = TRUE)
+}})
     
     
 

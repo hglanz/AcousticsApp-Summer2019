@@ -3,10 +3,11 @@ library(plotly)
 library(shinyalert)
 library(shinyjs)
 library(shinyBS)
+library(DT)
 
 shinyUI(navbarPage("Acoustic Analysis",
                    tabPanel("Exploration",
-                            sidebarPanel(width = 3,
+                            sidebarPanel(width = 4,
                                          h1("Acoustic Analysis"),
                                          br(),
                                          
@@ -22,40 +23,42 @@ shinyUI(navbarPage("Acoustic Analysis",
                                                           
                                                           br(),
                                                           uiOutput("audioplay"),
+                                                          h3("General Information:"),
                                                           
-                                                          br(),
                                                           div(style="display:inline-block", uiOutput("mintimelimit")),
                                                           div(style="display:inline-block", uiOutput("maxtimelimit")),
                                                           br(),
                                                           div(style="display:inline-block", uiOutput("minfreqlimit")),
                                                           div(style="display:inline-block", uiOutput("maxfreqlimit")),
-                                                          #uiOutput("mintimelimit"),
-                                                          #uiOutput("maxtimelimit"),
-                                                          #uiOutput("minfreqlimit"),
-                                                          #uiOutput("maxfreqlimit"),
+                                                          br(),
+                                                          
                                                           
                                                           ## Spectrum
                                                           div(style="display:inline-block", uiOutput("spectrumcheck")),
                                                           div(style="display:inline-block", actionButton("specthelp", "", icon = icon("question-circle"))),
+                                                          br(),
+                                                          
                                                           div(style="display:inline-block", uiOutput("spectrummin")),
                                                           div(style="display:inline-block", uiOutput("spectrummax")),
-                                                          #uiOutput("spectrummin"),
-                                                          #uiOutput("spectrummax"),
+                                                          br(),
                                                           
                                                           ## Sampling Rate
                                                           div(style="display:inline-block", uiOutput("sampcheck")),
                                                           div(style="display:inline-block", actionButton("samphelp", "", icon = icon("question-circle"))),
                                                           uiOutput("samplingrate"),
+                                                          br(),
                                                           
                                                           ## Window Function
                                                           div(style="display:inline-block", uiOutput("windowcheck")),
                                                           div(style="display:inline-block", actionButton("windowhelp", "", icon = icon("question-circle"))),
                                                           uiOutput("window"),
+                                                          br(),
                                                           
                                                           ## Overlapping
                                                           div(style="display:inline-block", uiOutput("ovlpcheck")),
                                                           div(style="display:inline-block", actionButton("ovlphelp", "", icon = icon("question-circle"))),
                                                           uiOutput("ovlp"),
+                                                          br(),
                                                           
                                                           ## Zero Padding
                                                           div(style="display:inline-block", uiOutput("zpcheck")),
@@ -63,7 +66,7 @@ shinyUI(navbarPage("Acoustic Analysis",
                                                           uiOutput("zp")
                                          )
                             ),
-                            mainPanel(width = 9,
+                            mainPanel(width = 8,
                                       tags$style(type="text/css",
                                                  ".shiny-output-error { visibility: hidden; }",
                                                  ".shiny-output-error:before { visibility: hidden; }"
@@ -98,30 +101,51 @@ shinyUI(navbarPage("Acoustic Analysis",
                             )
                    ),
                    tabPanel("Segmentaiton",
-                            sidebarPanel(width = 3,
+                            sidebarPanel(width = 4,
                                          h3("Segmentation"),
                                          br(),
                                          conditionalPanel("output.filechosen == true",
-                                                          div(style="display:inline-block", uiOutput("minDurlimit")),
-                                                          div(style="display:inline-block", uiOutput("maxDurlimit")),
-                                                          div(style="display:inline-block", 
-                                                              actionButton("minmaxDurhelp", "", icon = icon("question-circle"))),
-                                                          uiOutput("MinMaxDurHelpInfo"),
-                                                          
-                                                          div(style="display:inline-block", uiOutput("minbplimit")),
-                                                          div(style="display:inline-block", uiOutput("maxbplimit")),
-                                                          div(style="display:inline-block",         
-                                                              actionButton("bphelp", "", icon = icon("question-circle"))),
-                                                          uiOutput("bpHelpInfo"),
-                                                          
-                                                          div(style="display:inline-block", uiOutput("threshold")),
-                                                          div(style="display:inline-block", 
-                                                              actionButton("threshelp", "", icon = icon("question-circle"))),
-                                                          uiOutput("thresHelpInfo"))
+                                                          uiOutput("shortestSyl"),
+                                                          uiOutput("interburst"),
+                                                          div(style="display:inline-block",uiOutput("threshold")),
+                                                          div(style="display:inline-block", actionButton("thresHelp", "", icon = icon("question-circle"))),
+                                                          uiOutput("thresHelpInfo"),
+                                                          actionButton("seghelp", "Segmentation Details")
+                                                          )
                                          
                             ),
-                            mainPanel(width = 9,
-                                      imageOutput("segment", width = 30, height = 10))),
+                            mainPanel(width = 8,
+                                      conditionalPanel("output.filechosen == true",
+                                          ## Segmentation
+                                          plotOutput("segment"),
+                                          
+                                          ## Syllables DataTable
+                                          div(style="display:inline-block", h4("Syllables")),
+                                          img(src = "syllable.jpg", width = "5%", height = "5%"),
+                                          div(style="display:inline-block", 
+                                              actionButton("syllablesHelp", "", icon = icon("question-circle"))),
+                                          uiOutput("syllablesHelpInfo"),
+                                          div(DT::dataTableOutput("syllables"), style = "font-size: 75%; width: 75%"),
+                                          br(),
+                                          downloadButton("downloadSyllables", "Download Syllables Data"),
+                                          br(),
+                                          
+                                          ## Burst DataTable
+                                          div(style="display:inline-block", h4("Bursts")),
+                                          img(src = "burst.jpg", width = "5%", height = "5%"),
+                                          div(style="display:inline-block", 
+                                              actionButton("burstsHelp", "", icon = icon("question-circle"))),
+                                          uiOutput("burstsHelpInfo"),
+                                          br(),
+                                          div(DT::dataTableOutput("bursts"), style = "font-size: 75%; width: 75%"),
+                                          br(),
+                                          downloadButton("downloadBursts", "Download Bursts Data"),
+                                          br(),
+                                          br(),
+                                          
+                                          ## Segmentation Help
+                                          uiOutput("SegHelpInfo")))),
+                   
                    
             tabPanel("About", "This page is left blank temporarely.")
 ))
