@@ -68,3 +68,24 @@ Week 4:
 	- need more details: "Make pictures smaller and consistent across help options (use size of right graph in windowed 		signal as template)" 
 	- fixed: f_s in sampling rate should be an actual subscript
 	- Windows.R doesn't work when run by itself, why? 
+Week 5:
+	- worked on a few fixes with windows.R
+		- still need to make the legend, but everything else is done
+	- researched other spectrum methods
+		- none worked in the way we wanted them to
+	- new segmentation method using segment()
+		- help buttons
+		- downloadable datatable as csv
+		- adjustment menu:
+			- can adjust amplitude threshold and minimum duration of a segment
+			- a lot of other options to explore
+		- peaks/bursts data tables
+		- information button for the segmentation method
+Week 6:
+	- segmentation:
+		- removed bursts/peaks
+		- start time, end time, duration
+		- min and max frequency, peak frequency
+			-using spec() graph and dfreq() for dominant frequency - peak frequency
+		
+
