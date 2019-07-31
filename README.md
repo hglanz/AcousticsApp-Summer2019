@@ -90,7 +90,7 @@ The objective of this summer research is to develop, expand, and polish an R Shi
         
         b. Could be interactive via dragging of red lines by user
         
-        c. max dB should be 0 always
+        c. max dB should be 0 always (done)
         
         d. Horizontal black lines on spectrogram should be on spectrum too
         
@@ -100,7 +100,7 @@ The objective of this summer research is to develop, expand, and polish an R Shi
     
     iv. Reorganize/condense inputs on left. Could some min/max pairs be on the same line? (done)
     
-    v. Sections in input panel: General Information, Extra Options
+    v. Sections in input panel: General Information, Extra Options (done)
     
     vi. Loading image while graphs are being created? Not sure if this is possible.
     
@@ -115,17 +115,18 @@ The objective of this summer research is to develop, expand, and polish an R Shi
         
     ii. Help Options:
     
-        a. All pictures fit on screen without horizontal scroll bar (this is done)
+        a. All pictures fit on screen without horizontal scroll bar (done)
         
-        b. Make pictures smaller and consistent across help options (use size of right graph in windowed signal as template)
+        b. Make pictures smaller and consistent across help options 
+           (use size of right graph in windowed signal as template) (done)
         
         c. f_s in sampling rate should be an actual subscript (done)
         
         d. Some sampling rates don't work for marine related files. Why not?...and fix.
         
-        e. Get rid of title "7-series graph" in window function help (use windows.R)
+        e. Get rid of title "7-series graph" in window function help (use windows.R) (done)
         
-        f. Move the 7th graph to right to get rid of overlap with 6 graphs in window function help (use windows.R)
+        f. Move the 7th graph to right to get rid of overlap with 6 graphs in window function help (use windows.R) (done)
         
         g. Spectrum should have x-axis only go up to 0.4999 (use windows.R) in window function help
         
