@@ -126,9 +126,11 @@ The objective of this summer research is to develop, expand, and polish an R Shi
         
         e. Get rid of title "7-series graph" in window function help (use windows.R) (done)
         
-        f. Move the 7th graph to right to get rid of overlap with 6 graphs in window function help (use windows.R) (done)
+        f. Move the 7th graph to right to get rid of overlap with 6 graphs in window 
+           function help (use windows.R) (done)
         
-        g. Spectrum should have x-axis only go up to 0.4999 (use windows.R) in window function help
+        g. Spectrum should have x-axis only go up to 0.4999 (use windows.R) 
+           in window function help (done)
         
         h. Need legend in 7th graph (right) in window function help (use windows.R)
         
