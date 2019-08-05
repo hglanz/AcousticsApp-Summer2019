@@ -62,4 +62,6 @@ plot(d,xaxt='n',yaxt='n',xlab="Hanning",ylab="",type="l",ylim=c(-0.25,1.25),col=
 plot(e,xaxt='n',yaxt='n',xlab="Blackman",ylab="",type="l",ylim=c(-0.25,1.25),col="blue")
 plot(f,xaxt='n',yaxt='n',xlab="Flattop",ylab="",type="l",ylim=c(-0.25,1.25),col="blue")
 all<-cbind(a,b,c,d,e,f)
-spectrum <- spectrum(all, main=NA)
+spectrum <- spectrum(all, main=NA, xaxt='n')
+axis(side = 1, at = c(0, 0.1, 0.2, 0.3, 0.4), tck = -.025)
+axis(side = 1, at = c(0.4999), tck = -.025)

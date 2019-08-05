@@ -9,12 +9,13 @@ library(warbleR)
 library(DT)
 library(soundgen)
 library(dplyr)
+library(purrr)
 
 
 seed = as.numeric(Sys.time())
 load("DefaultWavFiles-ForApp.RData")
 source("spectro_hg.R")
-
+source("seg_functions.R")
 
 shinyServer(function(input, output, session) {
     
@@ -804,9 +805,7 @@ output$spectro <- renderPlot({
                          flab = "", yaxt = "n",
                          from = specmin_choice,
                          to = specmax_choice,
-                         collevels = collevels,
-                         collab = collab,
-                         flim = c(5, input$maxfreq),
+                         flim = c(input$minfreq, input$maxfreq),
                          dB = "max0",
                          xaxt = "n",
                          main = "Spectrum",
@@ -815,6 +814,8 @@ output$spectro <- renderPlot({
         )
         spectcks <- seq(from = round(min(specvals[,2])), to = 0, by = 5)
         axis(1, at = spectcks, labels = spectcks, tck = -.025, pos = input$minfreq)
+        axis(side = 1, at = c(0), tck = -.025)
+        #abline(h = input$maxfreq, col = "blue", lty = 2, lwd=3)
         # text(median(spectcks), -.05, "Amplitude (dB)", cex = 1.5)
         
         ## Oscillogram ##
@@ -826,6 +827,126 @@ output$spectro <- renderPlot({
                 cexlab = 0.87)
         abline(v = specmin_choice, col = "red", lty = 2, lwd=3)
         abline(v = specmax_choice, col = "red", lty = 2, lwd=3)
+        
+        #### Segmentation ####
+        output$segment <- renderPlot({
+            
+            inFile <- filevalues$file1$datapath
+            ### Read .wav file in ###
+            if (!is.null(inFile)) {
+                
+                wav <- readWave(inFile)
+                sp <- spectro(wav, plot = F)
+                
+                filetitle <- filevalues$file1$name
+                
+            } else if (filevalues$file2 != 1) {
+                
+                ### Assign wav File & Title ###
+                wav <- switch(filevalues$file2,
+                              "2" = sine1,
+                              "3" = sine2,
+                              "4" = sine3,
+                              "5" = square,
+                              "6" = triangle,
+                              "7" = whale,
+                              "8" = dolphin,
+                              "9" = noise)
+                sp <- spectro(wav, plot = F)
+                filetitle <- switch(filevalues$file2,
+                                    "2" = "Sine1",
+                                    "3" = "Sine2",
+                                    "4" = "Sine3",
+                                    "5" = "Square",
+                                    "6" = "Triangle",
+                                    "7" = "Whale",
+                                    "8" = "Dolphin",
+                                    "9" = "Noise")
+            }
+            
+            if (exists("wav")) {
+                ### Determine Sampling Rate ###
+                if (!is.null(input$samprate)) {
+                    samprate_choice <- as.numeric(input$samprate)
+                } else {
+                    samprate_choice <- wav@samp.rate
+                    
+                    ### Determine Shortest Segment ###
+                    if (!is.null(input$shortestSyl)) {
+                        shortestSyl_choice <- input$shortestSyl
+                        
+                    } else {
+                        shortestSyl_choice <- 40
+                        
+                    }
+                    
+                    ### Determine Threshold Limits ###
+                    if (!is.null(input$threshold)) {
+                        threshold_choice <- input$threshold
+                    } else {
+                        threshold_choice <- 0.9
+                    }
+                    
+                    ### Plot Segmentation ###
+                    savewav(wav, filename = "tempFile.wav")
+                    segment <- segment("tempFile.wav", 
+                                       plot = TRUE, 
+                                       main = filetitle,
+                                       shortestSyl = shortestSyl_choice,
+                                       sylThres = threshold_choice,
+                                       xlab = "Time (ms)")
+                    segments <- segment$syllables
+                    segments <- round(segments %>% 
+                                          rowwise() %>% 
+                                          mutate("Min Frequency" = freq_range("tempFile.wav", start/1000, end/1000)[1,1],
+                                                 "Max Frequency" = freq_range("tempFile.wav", start/1000, end/1000)[2,1],
+                                                 "Peak Frequency" = freq_range("tempFile.wav", start/1000, end/1000)[3,1])%>%
+                                          rename(Segment = syllable, "Start (ms)" = start,
+                                                 "End (ms)" = end, "Segment Duration (ms)" = sylLen) %>%
+                                          select(-pauseLen),3)
+                    
+                    
+                    output$segments <- DT::renderDataTable({
+                        segments},
+                        rownames = FALSE,
+                        options = list(pageLength = 5))
+                    
+                    output$spectro_seg <- renderPlot({
+                        input_cols <- input$segments_rows_selected
+                        spectro(wav,
+                                tlab = "",
+                                f = samprate_choice,
+                                tlim = c(input$mintime, input$maxtime),
+                                flim = c(input$minfreq, input$maxfreq),
+                                main = paste("Spectrogram of", filetitle),
+                                font.main = 1,
+                                cex.main= 1.7,
+                                cex.lab=1.3,
+                                wn = window_choice,
+                                zp = zp_choice,
+                                ovlp = ovlp_choice,
+                                scale = FALSE)
+                        plot.title = title(main = "", xlab = "Time (s)",
+                                            ylab = "Frequency (kHz)")
+                    
+                        segment_box(segments, input_cols)
+                    })
+                    
+                    # Downloadable csv of selected dataset
+                    output$downloadSegments <- downloadHandler(
+                        filename <- function() {
+                            paste(filetitle, "-segments", ".csv", sep="")
+                        },
+                        content <- function(file) {
+                            write.csv(segments, file)
+                        }
+                    )
+                    
+                }
+            }})
+        
+        
+        
     }
 })
 
@@ -896,7 +1017,7 @@ output$shortestSyl <- renderUI({
     if (!is.null(inFile)) {
         wav <- readWave(inFile)
         
-        numericInput("shortestSyl", label = "Min Length of Syllables (ms):",
+        numericInput("shortestSyl", label = "Min Length of Segments (ms):",
                      value = 40, min = 0, max = length(wav@left)/wav@samp.rate*1000)
     } else {
         wav <- switch(filevalues$file2,
@@ -909,7 +1030,7 @@ output$shortestSyl <- renderUI({
                       "8" = dolphin,
                       "9" = noise)
         
-        numericInput("shortestSyl", label = "Min Length of Syllables (ms):",
+        numericInput("shortestSyl", label = "Min Length of Segments (ms):",
                      value = 40, min = 0, max = length(wav@left)/wav@samp.rate*1000)
     }
 })
@@ -921,8 +1042,8 @@ output$threshold <- renderUI({
         if (!is.null(inFile)) {
             wav <- readWave(inFile)
             
-            numericInput("threshold", label = "Amplitude Threshold for Syllable Detection (%):",
-                         value = 0.9, 1)
+            numericInput("threshold", label = "Amplitude Threshold (proportion):",
+                         value = 0.9, max = 1, step = 0.1)
             
         } else {
             wav <- switch(filevalues$file2,
@@ -935,36 +1056,27 @@ output$threshold <- renderUI({
                           "8" = dolphin,
                           "9" = noise)
             
-            numericInput("threshold", label = "Amplitude Threshold:",
-                         value = 0.9, 1)
+            numericInput("threshold", label = "Amplitude Threshold: (proportion)",
+                         value = 0.9,max = 1, step = 0.1)
         }
 })
 
 
-output$syllablesHelpInfo <- renderText({
-    times <- input$syllablesHelp
+output$segmentsHelpInfo <- renderText({
+    times <- input$segmentsHelp
     if (times %% 2 == 1) {
-        return("<p>Syllables are defined as continuous 
-               segments with amplitude above a given threshold.</p>")
+        return("<p>Segments are defined as continuous 
+               fragments with amplitude above a given threshold, 
+               seperated by silence (or background noise).</p>")
         
     }
 })
 
-output$burstsHelpInfo <- renderText({
-    times <- input$burstsHelp
-    if (times %% 2 == 1) {
-        return("<p>Bursts are defined as local maxima in amplitude 
-                    that are high enough both in absolute terms 
-               (relative to the global maximum) and with respect 
-               to the surrounding region (relative to local mimima).</p>")
-        
-    }
-})
 
 output$thresHelpInfo <- renderText({
     times <- input$thresHelp
     if (times %% 2 == 1) {
-        return("<p>Amplitude threshold for syllable detection 
+        return("<p>Amplitude threshold for segment detection 
                as a proportion of global mean amplitude of smoothed envelope.</p>")
         
     }
@@ -974,20 +1086,15 @@ output$thresHelpInfo <- renderText({
 output$SegHelpInfo <- renderText({
     times <- input$seghelp
     if (times %% 2 == 1) {
-        return("<p><b>Spectrum Help</b></p>
-                <p>The following tab divides a sound file into separate “syllables” 
+        return("<p><b>Segmentation Help</b></p>
+                <p>The following tab divides a sound file into separate segments 
                 - continuous acoustic fragments separated by what we consider to be “silence”. 
-                This “silence” can often contain background noise. To look at the rate of syllables per 
-                second and their regularity, rather than the absolute duration of each syllable, 
-                the function finds bursts of acoustic energy - local maxima in amplitude envelope 
+                This “silence” can often contain background noise. The function finds bursts of acoustic energy - local maxima in amplitude envelope 
                 that are high enough both in absolute terms (relative to the global maximum) and 
-                with respect to the surrounding region (relative to local mimima). 
-                The spacing between bursts - the interburst interval - recovers the perceptually 
-                salient temporal structure of a bout of vocalizing, such as the number of 
-                syllables in a bout of a particular sound of interest, 
-                their average frequency, and regularity.The function segment(),
-                that is used here, looks for both syllables and bursts. Syllables are found first,
-                and then the median length of a syllable becomes the expected interburst interval,
+                with respect to the surrounding region (relative to local mimima)
+                which are denoted by the red stars. 
+                The function segment() used here, looks for both segments and bursts. Segments are found first,
+                and then the median length of a segment becomes the expected peak interval, 
                 guiding burst detection. The method operates with amplitude 
                 envelopes - smoothed contours of sound intensity. 
                 See vignette('acoustic_analysis', package = 'soundgen') for more details.</p>")
@@ -995,117 +1102,7 @@ output$SegHelpInfo <- renderText({
     }
 })
 
-#### Segmentation ####
-output$segment <- renderPlot({
-    
-    inFile <- filevalues$file1$datapath
-    ### Read .wav file in ###
-    if (!is.null(inFile)) {
-        
-        wav <- readWave(inFile)
-        sp <- spectro(wav, plot = F)
-        
-        filetitle <- filevalues$file1$name
-        
-    } else if (filevalues$file2 != 1) {
-        
-        ### Assign wav File & Title ###
-        wav <- switch(filevalues$file2,
-                      "2" = sine1,
-                      "3" = sine2,
-                      "4" = sine3,
-                      "5" = square,
-                      "6" = triangle,
-                      "7" = whale,
-                      "8" = dolphin,
-                      "9" = noise)
-        sp <- spectro(wav, plot = F)
-        filetitle <- switch(filevalues$file2,
-                            "2" = "Sine1",
-                            "3" = "Sine2",
-                            "4" = "Sine3",
-                            "5" = "Square",
-                            "6" = "Triangle",
-                            "7" = "Whale",
-                            "8" = "Dolphin",
-                            "9" = "Noise")
-    }
-    
-    if (exists("wav")) {
-        ### Determine Sampling Rate ###
-        if (!is.null(input$samprate)) {
-            samprate_choice <- as.numeric(input$samprate)
-        } else {
-            samprate_choice <- wav@samp.rate
-        
-        ### Determine Shortest Syllable ###
-        if (!is.null(input$shortestSyl)) {
-            shortestSyl_choice <- input$shortestSyl
-            
-        } else {
-            shortestSyl_choice <- 40
-            
-        }
-        ### Determine Inter Burst ###
-        if (!is.null(input$interburst)) {
-            interburst_choice <- input$interburst
-            
-        } else {
-            interburst_choice <- NULL
-        }    
-        
-        ### Determine Threshold Limits ###
-        if (!is.null(input$threshold)) {
-            threshold_choice <- input$threshold
-        } else {
-            threshold_choice <- 0.9
-        }
-        
-        ### Plot Segmentation ###
-        savewav(wav, filename = "tempFile.wav")
-        segment <- segment("tempFile.wav", 
-                           plot = TRUE, 
-                           main = filetitle,
-                           shortestSyl = shortestSyl_choice,
-                           sylThres = threshold_choice,
-                           xlab = "Time (ms)")
-        
-        syllables <- segment$syllables
-        syllables <- syllables %>% dplyr::rename(Syllable = syllable, Start = start,
-                                          End = end, "Syllable Length" = sylLen, "Pause Length" = pauseLen)
-        bursts <- segment$bursts
-        bursts <- bursts %>% dplyr::rename(Time = time, Amplitude = ampl, "Interburst Interval" = interburstInt)
-        
-        output$syllables <- DT::renderDataTable({
-            syllables},
-            rownames = FALSE,
-            options = list(pageLength = 5))
-        
-        output$bursts <- DT::renderDataTable({
-            bursts},
-            rownames = FALSE,
-            options = list(pageLength = 5))
-        
-        # Downloadable csv of selected dataset
-        output$downloadSyllables <- downloadHandler(
-            filename = function() {
-                paste(filetitle, "-syllables", ".csv", sep="")
-            },
-            content = function(file) {
-                write.csv(syllables, file)
-            }
-        )
-        output$downloadBursts <- downloadHandler(
-            filename = function() {
-                paste(filetitle, "-bursts", ".csv", sep="")
-            },
-            content = function(file) {
-                write.csv(bursts, file)
-            }
-        )
-       
-    }
-}})
+
     
     
 

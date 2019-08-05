@@ -106,11 +106,10 @@ shinyUI(navbarPage("Acoustic Analysis",
                                          br(),
                                          conditionalPanel("output.filechosen == true",
                                                           uiOutput("shortestSyl"),
-                                                          uiOutput("interburst"),
                                                           div(style="display:inline-block",uiOutput("threshold")),
                                                           div(style="display:inline-block", actionButton("thresHelp", "", icon = icon("question-circle"))),
                                                           uiOutput("thresHelpInfo"),
-                                                          actionButton("seghelp", "Segmentation Details")
+                                                          actionButton("seghelp", "Segmentation Help")
                                                           )
                                          
                             ),
@@ -119,29 +118,17 @@ shinyUI(navbarPage("Acoustic Analysis",
                                           ## Segmentation
                                           plotOutput("segment"),
                                           
-                                          ## Syllables DataTable
-                                          div(style="display:inline-block", h4("Syllables")),
-                                          img(src = "syllable.jpg", width = "5%", height = "5%"),
+                                          ## Segments DataTable
+                                          div(style="display:inline-block", h4("Segments")),
+                                          img(src = "segment.jpg", width = "5%", height = "5%"),
                                           div(style="display:inline-block", 
-                                              actionButton("syllablesHelp", "", icon = icon("question-circle"))),
-                                          uiOutput("syllablesHelpInfo"),
-                                          div(DT::dataTableOutput("syllables"), style = "font-size: 75%; width: 75%"),
+                                              actionButton("segmentsHelp", "", icon = icon("question-circle"))),
+                                          uiOutput("segmentsHelpInfo"),
+                                          div(DT::dataTableOutput("segments"), style = "font-size: 75%; width: 75%"),
                                           br(),
-                                          downloadButton("downloadSyllables", "Download Syllables Data"),
+                                          downloadButton("downloadSegments", "Download Segments Data"),
                                           br(),
-                                          
-                                          ## Burst DataTable
-                                          div(style="display:inline-block", h4("Bursts")),
-                                          img(src = "burst.jpg", width = "5%", height = "5%"),
-                                          div(style="display:inline-block", 
-                                              actionButton("burstsHelp", "", icon = icon("question-circle"))),
-                                          uiOutput("burstsHelpInfo"),
-                                          br(),
-                                          div(DT::dataTableOutput("bursts"), style = "font-size: 75%; width: 75%"),
-                                          br(),
-                                          downloadButton("downloadBursts", "Download Bursts Data"),
-                                          br(),
-                                          br(),
+                                          plotOutput("spectro_seg"),
                                           
                                           ## Segmentation Help
                                           uiOutput("SegHelpInfo")))),
