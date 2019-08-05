@@ -87,5 +87,17 @@ Week 6:
 		- start time, end time, duration
 		- min and max frequency, peak frequency
 			-using spec() graph and dfreq() for dominant frequency - peak frequency
-		
+		- investigated the range of amplitudes in the marine animals and why they appear to be in the -90 to -120 for 			  whales
+			- used histograms to do that, documented in the Descriptive Stats for Segments issue
+		- reproduced the spectrogram in the segmentation tab
+		- added boxes around spectrogram for each segment
+		- option to click on a segment in the data table and that will highlight a segment box in the spectrogram
+Week 7:
+	- segmentation:
+		- added help buttons
+		- fixed typos
+		- improved the location of the graphs and their size
+	- fixed windows help spectrum axis to only go to 0.4999
+	- researched legend for 7th graph for windows.R
+
 
