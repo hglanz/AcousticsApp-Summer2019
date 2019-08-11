@@ -970,8 +970,8 @@ output$audioplay <- renderUI({
         savewav(cut_wav, filename = "www/tempFile.wav")
         h3("Audio Playback",
            br(),
-           tags$small(paste("Start:", round(mintime_choice),3)),
-           tags$small(paste("End:", round(maxtime_choice),3)),
+           tags$small(paste("Start:", round(mintime_choice,3))),
+           tags$small(paste("End:", round(maxtime_choice,3))),
            tags$audio(src = "tempFile.wav", 
                       type = "audio/wav", 
                       controls = "controls"))
@@ -1001,8 +1001,8 @@ output$audioplay <- renderUI({
         savewav(cut_wav, filename = "www/tempFile.wav")
         h3("Audio Playback",
            br(),
-           tags$small(paste("Start:", mintime_choice)),
-           tags$small(paste("End:", maxtime_choice)),
+           tags$small(paste("Start:", round(mintime_choice,3))),
+           tags$small(paste("End:", round(maxtime_choice,3))),
            tags$audio(src = "tempFile.wav", 
                       type = "audio/wav", 
                       controls = "controls"))
