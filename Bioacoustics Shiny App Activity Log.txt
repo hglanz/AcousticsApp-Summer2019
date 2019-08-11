@@ -99,5 +99,8 @@ Week 7:
 		- improved the location of the graphs and their size
 	- fixed windows help spectrum axis to only go to 0.4999
 	- researched legend for 7th graph for windows.R
+	- researched problems with noise file
+		- works when run seperately outside the app
+	
 
 
