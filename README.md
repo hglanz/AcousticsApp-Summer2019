@@ -108,7 +108,7 @@ The objective of this summer research is to develop, expand, and polish an R Shi
   
     i. Spectrum:
     
-        a. Why doesn't it show amplitude for all frequences in dolphin file?
+        a. Why doesn't it show amplitude for all frequences in dolphin file? (done)
         
         b. Choosing a different window function should change both the spectrum and the spectrogram, 
            but it currently doesn't change the spectrum (done)
