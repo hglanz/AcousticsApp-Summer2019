@@ -101,6 +101,8 @@ Week 7:
 	- researched legend for 7th graph for windows.R
 	- researched problems with noise file
 		- works when run seperately outside the app
+	- fixed noise file
+		-removed NA value when picking min frequency
 	
 
 
