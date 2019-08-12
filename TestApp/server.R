@@ -785,8 +785,8 @@ output$spectro <- renderPlot({
                 tlab = "",
                 # xaxt = "n",
                 f = samprate_choice,
-                tlim = c(input$mintime, input$maxtime),
-                flim = c(input$minfreq, input$maxfreq),
+                tlim = c(mintime_choice, maxtime_choice),
+                flim = c(minfreq_choice, maxfreq_choice),
                 main = paste("Spectrogram of", filetitle),
                 font.main = 1,
                 cex.main= 1.7,
@@ -800,7 +800,7 @@ output$spectro <- renderPlot({
         ## Spectrum ##
         par(mar=c(4,1,2,0.5))
         specvals <- spec(wav,
-                         f = samprate_choice,
+                         f = round(samprate_choice),
                          col = "red",
                          lwd=3,
                          plot = 2,
@@ -808,7 +808,7 @@ output$spectro <- renderPlot({
                          flab = "", yaxt = "n",
                          from = specmin_choice,
                          to = specmax_choice,
-                         flim = c(input$minfreq, input$maxfreq),
+                         flim = c(minfreq_choice, maxfreq_choice),
                          dB = "max0",
                          xaxt = "n",
                          main = "Spectrum",
@@ -816,7 +816,7 @@ output$spectro <- renderPlot({
                          cex.axis = 1.5
         )
         spectcks <- seq(from = round(min(specvals[,2])), to = 0, by = 5)
-        axis(1, at = spectcks, labels = spectcks, tck = -.025, pos = input$minfreq)
+        axis(1, at = spectcks, labels = spectcks, tck = -.025, pos = minfreq_choice)
         axis(side = 1, at = c(0), tck = -.025)
         #abline(h = input$maxfreq, col = "blue", lty = 2, lwd=3)
         # text(median(spectcks), -.05, "Amplitude (dB)", cex = 1.5)
