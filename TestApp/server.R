@@ -213,10 +213,11 @@ output$maxfreqlimit <- renderUI({
         maxfreq_pos <- which(diff(rev(apply(sp$amp, 1, max) <= -29)) < 0)[1]
         if (length(maxfreq_pos) == 0) {
             numericInput("maxfreq", label = "Max Frequency (kHz):",
-                         value = round(rev(sp$freq)[1]),3)
+                         value = round(rev(sp$freq)[1],3))
         } else {
             numericInput("maxfreq", label = "Max Frequency (kHz):",
-                         value = round(min(rev(sp$freq)[maxfreq_pos]+.5, max(sp$freq)),3))
+                         value = round(min(rev(sp$freq)[maxfreq_pos]+.5, max(sp$freq),
+                                           na.rm = TRUE),3))
         }
     } else {
         wav <- switch(filevalues$file2,
@@ -235,9 +236,12 @@ output$maxfreqlimit <- renderUI({
         if (length(maxfreq_pos) == 0) {
             numericInput("maxfreq", label = "Max Frequency (kHz):",
                          value = round(rev(sp$freq)[1],3))
+            
         } else {
             numericInput("maxfreq", label = "Max Frequency (kHz):",
-                         value = round(min(rev(sp$freq)[maxfreq_pos]+.5, max(sp$freq)),3))
+                         value = round(min(rev(sp$freq)[maxfreq_pos]+.5, max(sp$freq),
+                                           na.rm = TRUE),3))
+
         }
     }
 })
@@ -793,7 +797,6 @@ output$spectro <- renderPlot({
                 scale = FALSE)
         abline(v = specmin_choice, col = "red", lty = 2, lwd=3)
         abline(v = specmax_choice, col = "red", lty = 2, lwd=3)
-        
         ## Spectrum ##
         par(mar=c(4,1,2,0.5))
         specvals <- spec(wav,
