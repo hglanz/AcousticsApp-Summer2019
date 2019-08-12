@@ -144,7 +144,7 @@ The objective of this summer research is to develop, expand, and polish an R Shi
         
         b. Make sure hover button works for everything
         
-        c. Noise file needs fixing; currently doesn't work
+        c. Noise file needs fixing; currently doesn't work (done)
         
         d. Fonts need to be the same (done)
         
