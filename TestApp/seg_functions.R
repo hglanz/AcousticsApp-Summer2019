@@ -3,9 +3,8 @@ freq_range <- function(filetitle, min_time, max_time) {
     spec <- round(data.frame(spec(wav,dB = "max0", plot = FALSE)),3)%>% filter (y > -35)
     minfreq <- min(spec$x)
     maxfreq <- max(spec$x)
-    
-    dfreq <- data.frame(dfreq(wav, plot = FALSE))
-    peakfreq <- max(dfreq$x)
+    maxamp <- max(spec$y)
+    peakfreq <- as.numeric(spec %>% filter(y == maxamp) %>% select(x) %>% head(1))
     list <- c(minfreq, maxfreq, peakfreq)
     return(matrix(list))
 }

@@ -65,3 +65,6 @@ all<-cbind(a,b,c,d,e,f)
 spectrum <- spectrum(all, main=NA, xaxt='n')
 axis(side = 1, at = c(0, 0.1, 0.2, 0.3, 0.4), tck = -.025)
 axis(side = 1, at = c(0.4999), tck = -.025)
+legend(1, 95, legend=c("Rectangle", "Bartlett", "Hamming", "Hanning",
+                       "Blackman". "Flattop"),
+       col=c("red", "blue"), lty=1:2, cex=0.8)

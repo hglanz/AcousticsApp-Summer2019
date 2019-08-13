@@ -110,12 +110,11 @@ output$wavinfo <- renderUI({
 })
 
 output$mintimelimit <- renderUI({
-    
     inFile <- filevalues$file1$datapath
     ### Read .wav file in ###
     if (!is.null(inFile)) {
         wav <- readWave(inFile)
-        
+
         numericInput("mintime", label = "Min Time (s):",
                      value = 0, min = 0, max = length(wav@left)/wav@samp.rate)
     } else {
@@ -135,7 +134,6 @@ output$mintimelimit <- renderUI({
 })
 
 output$maxtimelimit <- renderUI({
-    
     inFile <- filevalues$file1$datapath
     ### Read .wav file in ###
     if (!is.null(inFile)) {
@@ -153,12 +151,58 @@ output$maxtimelimit <- renderUI({
                       "7" = whale,
                       "8" = dolphin,
                       "9" = noise)
-        
         numericInput("maxtime", label = "Max Time (s):",
-                     value = round(length(wav@left)/wav@samp.rate,3), min = 0, max = length(wav@left)/wav@samp.rate)
+                     value = round(length(wav@left)/wav@samp.rate), min = 0, max = length(wav@left)/wav@samp.rate)
     }
 })
 
+output$durationlimit <- renderUI({
+    inFile <- filevalues$file1$datapath
+    ### Read .wav file in ###
+    if (!is.null(inFile)) {
+        wav <- readWave(inFile)
+        if (!is.null(input$mintime)) {
+            mintime <- input$mintime
+        }
+        else {
+            mintime <- 0
+        }
+        if (!is.null(input$maxtime)) {
+            maxtime <- input$maxtime
+        }
+        else {
+            maxtime <- length(wav@left)/wav@samp.rate
+            
+        }
+        numericInput("duration", label = "Duration (s):",
+                     value = maxtime - mintime, min = 0, max = length(wav@left)/wav@samp.rate)
+    } else {
+        wav <- switch(filevalues$file2,
+                      "2" = sine1,
+                      "3" = sine2,
+                      "4" = sine3,
+                      "5" = square,
+                      "6" = triangle,
+                      "7" = whale,
+                      "8" = dolphin,
+                      "9" = noise)
+        if (!is.null(input$mintime)) {
+            mintime <- input$mintime
+        }
+        else {
+            mintime <- 0
+        }
+        if (!is.null(input$maxtime)) {
+            maxtime <- input$maxtime
+        }
+        else {
+            maxtime <- length(wav@left)/wav@samp.rate
+        }
+
+        numericInput("duration", label = "Duration (s):",
+                     value = maxtime - mintime, min = 0, max = length(wav@left)/wav@samp.rate)
+    }
+})
 
 output$minfreqlimit <- renderUI({
     
@@ -892,12 +936,15 @@ output$spectro <- renderPlot({
                     
                     ### Plot Segmentation ###
                     savewav(wav, filename = "tempFile.wav")
+                    par(mar = c(4,4,0,0.5))
                     segment <- segment("tempFile.wav", 
                                        plot = TRUE, 
-                                       main = filetitle,
+                                       main = NA,
                                        shortestSyl = shortestSyl_choice,
                                        sylThres = threshold_choice,
-                                       xlab = "Time (ms)")
+                                       xlab = "Time (ms)",
+                                       font.lab = 1,
+                                       cex.lab=1.1)
                     segments <- segment$syllables
                     segments <- round(segments %>% 
                                           rowwise() %>% 
@@ -916,21 +963,23 @@ output$spectro <- renderPlot({
                     
                     output$spectro_seg <- renderPlot({
                         input_cols <- input$segments_rows_selected
+                        par(mar=c(0.5,4,4,0.5))
                         spectro(wav,
                                 tlab = "",
+                                xaxt='n',
+                                font.lab = 1,
                                 f = samprate_choice,
                                 tlim = c(input$mintime, input$maxtime),
                                 flim = c(input$minfreq, input$maxfreq),
-                                main = paste("Spectrogram of", filetitle),
+                                main = paste("Spectrogram and Segmentation of", filetitle),
                                 font.main = 1,
-                                cex.main= 1.7,
-                                cex.lab=1.3,
+                                cex.main= 1.5,
+                                cex.lab=1,
                                 wn = window_choice,
                                 zp = zp_choice,
                                 ovlp = ovlp_choice,
                                 scale = FALSE)
-                        plot.title = title(main = "", xlab = "Time (s)",
-                                            ylab = "Frequency (kHz)")
+                        plot.title = title(main = "", ylab = "Frequency (kHz)")
                     
                         segment_box(segments, input_cols)
                     })
@@ -976,7 +1025,7 @@ output$audioplay <- renderUI({
            tags$small(paste("Start:", round(mintime_choice,3))),
            tags$small(paste("End:", round(maxtime_choice,3))),
            tags$audio(src = "tempFile.wav", 
-                      type = "audio/wav", 
+                      type = "audio/wav",
                       controls = "controls"))
             
     } else if (input$file2 != 1) {
@@ -1006,9 +1055,10 @@ output$audioplay <- renderUI({
            br(),
            tags$small(paste("Start:", round(mintime_choice,3))),
            tags$small(paste("End:", round(maxtime_choice,3))),
-           tags$audio(src = "tempFile.wav", 
-                      type = "audio/wav", 
-                      controls = "controls"))
+           div(style="display:inline-block",tags$audio(src = "tempFile.wav", 
+                                                       type = "audio/wav", 
+                                                       controls = "controls"), style="float:right")
+           )
     }
     })
     
@@ -1100,7 +1150,8 @@ output$SegHelpInfo <- renderText({
                 and then the median length of a segment becomes the expected peak interval, 
                 guiding burst detection. The method operates with amplitude 
                 envelopes - smoothed contours of sound intensity. 
-                See vignette('acoustic_analysis', package = 'soundgen') for more details.</p>")
+                For more information run vignette('acoustic_analysis', package = 'soundgen') in 
+                your R-Studio console. </p>")
     
     }
 })

@@ -22,11 +22,13 @@ shinyUI(navbarPage("Acoustic Analysis",
                                                           uiOutput("wavinfo"),
                                                           
                                                           br(),
+                                                          
                                                           uiOutput("audioplay"),
                                                           h3("General Information:"),
                                                           
                                                           div(style="display:inline-block", uiOutput("mintimelimit")),
                                                           div(style="display:inline-block", uiOutput("maxtimelimit")),
+                                                          div(style="display:inline-block", uiOutput("durationlimit")),
                                                           br(),
                                                           div(style="display:inline-block", uiOutput("minfreqlimit")),
                                                           div(style="display:inline-block", uiOutput("maxfreqlimit")),
@@ -100,7 +102,7 @@ shinyUI(navbarPage("Acoustic Analysis",
                                       
                             )
                    ),
-                   tabPanel("Segmentaiton",
+                   tabPanel("Segmentation",
                             sidebarPanel(width = 4,
                                          h3("Segmentation"),
                                          br(),
@@ -115,24 +117,27 @@ shinyUI(navbarPage("Acoustic Analysis",
                             ),
                             mainPanel(width = 8,
                                       conditionalPanel("output.filechosen == true",
-                                          ## Segmentation
-                                          plotOutput("segment"),
-                                          
-                                          ## Segments DataTable
-                                          div(style="display:inline-block", h4("Segments")),
-                                          img(src = "segment.jpg", width = "5%", height = "5%"),
-                                          div(style="display:inline-block", 
-                                              actionButton("segmentsHelp", "", icon = icon("question-circle"))),
-                                          uiOutput("segmentsHelpInfo"),
-                                          div(DT::dataTableOutput("segments"), style = "font-size: 75%; width: 75%"),
-                                          br(),
-                                          downloadButton("downloadSegments", "Download Segments Data"),
-                                          br(),
-                                          plotOutput("spectro_seg"),
-                                          
-                                          ## Segmentation Help
-                                          uiOutput("SegHelpInfo")))),
-                   
+                                                      ## Spectrogram 
+                                                      plotOutput("spectro_seg"),
+                                                      
+                                                      ## Segmentation
+                                                      plotOutput("segment"),
+                                                      
+                                                      ## Segments DataTable
+                                                      div(style="display:inline-block", div("Segments")),
+                                                      img(src = "segment.jpg", width = "5%", height = "5%"),
+                                                      div(style="display:inline-block", 
+                                                          actionButton("segmentsHelp", "", icon = icon("question-circle"))),
+                                                      uiOutput("segmentsHelpInfo"),
+                                                      div(DT::dataTableOutput("segments"), style = "font-size: 75%; width: 75%"),
+                                                      br(),
+                                                      downloadButton("downloadSegments", "Download Segments Data"),
+                                                      br(),
+                                                      
+                                                      
+                                                      ## Segmentation Help
+                                                      uiOutput("SegHelpInfo")))),
+                               
                    
             tabPanel("About", "This page is left blank temporarely.")
 ))
