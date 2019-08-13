@@ -103,6 +103,8 @@ Week 7:
 		- works when run seperately outside the app
 	- fixed noise file
 		-removed NA value when picking min frequency
+	- fixed dolphin spectrum
+		- NAs were created in the sample rate, needed to round numbers
 	
 
 
