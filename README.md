@@ -132,7 +132,7 @@ The objective of this summer research is to develop, expand, and polish an R Shi
         g. Spectrum should have x-axis only go up to 0.4999 (use windows.R) 
            in window function help (done)
         
-        h. Need legend in 7th graph (right) in window function help (use windows.R)
+        h. Need legend in 7th graph (right) in window function help (use windows.R) (done)
         
         i. Make formula in text stand out more in overlapping help (done)
         
