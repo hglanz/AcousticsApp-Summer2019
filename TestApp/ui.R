@@ -139,7 +139,7 @@ shinyUI(navbarPage("Acoustic Analysis",
                                                       uiOutput("SegHelpInfo")))),
                                
                    
-            tabPanel("About", "This page is left blank temporarely.")
+            tabPanel("About", uiOutput("aboutInfo"))
 ))
 
 
