@@ -10,6 +10,8 @@ library(DT)
 library(soundgen)
 library(dplyr)
 library(purrr)
+library(reshape2)
+library(htmltools)
 
 
 seed = as.numeric(Sys.time())
@@ -152,57 +154,11 @@ output$maxtimelimit <- renderUI({
                       "8" = dolphin,
                       "9" = noise)
         numericInput("maxtime", label = "Max Time (s):",
-                     value = round(length(wav@left)/wav@samp.rate), min = 0, max = length(wav@left)/wav@samp.rate)
+                     value = round(length(wav@left)/wav@samp.rate,3), min = 0, max = length(wav@left)/wav@samp.rate)
     }
 })
 
-output$durationlimit <- renderUI({
-    inFile <- filevalues$file1$datapath
-    ### Read .wav file in ###
-    if (!is.null(inFile)) {
-        wav <- readWave(inFile)
-        if (!is.null(input$mintime)) {
-            mintime <- input$mintime
-        }
-        else {
-            mintime <- 0
-        }
-        if (!is.null(input$maxtime)) {
-            maxtime <- input$maxtime
-        }
-        else {
-            maxtime <- length(wav@left)/wav@samp.rate
-            
-        }
-        numericInput("duration", label = "Duration (s):",
-                     value = maxtime - mintime, min = 0, max = length(wav@left)/wav@samp.rate)
-    } else {
-        wav <- switch(filevalues$file2,
-                      "2" = sine1,
-                      "3" = sine2,
-                      "4" = sine3,
-                      "5" = square,
-                      "6" = triangle,
-                      "7" = whale,
-                      "8" = dolphin,
-                      "9" = noise)
-        if (!is.null(input$mintime)) {
-            mintime <- input$mintime
-        }
-        else {
-            mintime <- 0
-        }
-        if (!is.null(input$maxtime)) {
-            maxtime <- input$maxtime
-        }
-        else {
-            maxtime <- length(wav@left)/wav@samp.rate
-        }
 
-        numericInput("duration", label = "Duration (s):",
-                     value = maxtime - mintime, min = 0, max = length(wav@left)/wav@samp.rate)
-    }
-})
 
 output$minfreqlimit <- renderUI({
     
@@ -841,6 +797,7 @@ output$spectro <- renderPlot({
                 scale = FALSE)
         abline(v = specmin_choice, col = "red", lty = 2, lwd=3)
         abline(v = specmax_choice, col = "red", lty = 2, lwd=3)
+        
         ## Spectrum ##
         par(mar=c(4,1,2,0.5))
         specvals <- spec(wav,
@@ -862,7 +819,7 @@ output$spectro <- renderPlot({
         spectcks <- seq(from = round(min(specvals[,2])), to = 0, by = 5)
         axis(1, at = spectcks, labels = spectcks, tck = -.025, pos = minfreq_choice)
         axis(side = 1, at = c(0), tck = -.025)
-        #abline(h = input$maxfreq, col = "blue", lty = 2, lwd=3)
+        #abline(h = input$minfreq, col = "blue", lty = 2, lwd=3)
         # text(median(spectcks), -.05, "Amplitude (dB)", cex = 1.5)
         
         ## Oscillogram ##
@@ -874,6 +831,139 @@ output$spectro <- renderPlot({
                 cexlab = 0.87)
         abline(v = specmin_choice, col = "red", lty = 2, lwd=3)
         abline(v = specmax_choice, col = "red", lty = 2, lwd=3)
+        
+        
+        output$plotly <- renderPlotly({
+            
+            ##Spectrogram
+            par(mar=c(4,4,2,0.5))
+            sp <- spectro(wav,
+                          tlab = "",
+                          # xaxt = "n",
+                          f = samprate_choice,
+                          tlim = c(mintime_choice, maxtime_choice),
+                          flim = c(minfreq_choice, maxfreq_choice),
+                          wn = window_choice,
+                          zp = zp_choice,
+                          ovlp = ovlp_choice,
+                          scale = FALSE,
+                          plot = FALSE)
+            amp <-
+                melt(sp$amp, value.name = "Amplitude") %>%
+                select(FrequencyIndex = Var1, TimeIndex = Var2, Amplitude)
+            freq <-
+                melt(sp$freq, value.name = "Frequency") %>%
+                mutate(FrequencyIndex = row_number(), Frequency = Frequency * 1000)
+            time <-
+                melt(sp$time, value.name = "Time") %>%
+                mutate(TimeIndex = row_number())
+            sp <-
+                amp %>%
+                left_join(freq, by = "FrequencyIndex") %>%
+                left_join(time, by = "TimeIndex") %>%
+                select(Time, Frequency, Amplitude)
+            sp <- sp %>% filter(Amplitude > -35, Frequency > 0, Time > 0) %>%
+                mutate("Time (s)" = Time, "Frequency (kHz)" = Frequency/1000) %>%
+                select(-Frequency, -Time)
+            
+            
+            
+            pal <- c('white','gray100', "steelblue1", "blue", "springgreen4","green", "yellow", "orange", "red")
+            
+            if (nrow(sp) <1000){
+                dot_size <- 5
+            }
+            if (nrow(sp) < 5000){
+                
+                dot_size <- 2
+            } else {
+               
+                dot_size <- 0.1
+            }
+            #print(nrow(sp))
+            #print(dot_size)
+            p1 <- plot_ly(sp, x = sp$`Time (s)`, y = sp$`Frequency (kHz)`, type = "scatter", mode = "markers",
+                         color = sp$Amplitude, colors = pal) %>%
+                        layout(title=paste("Spectrogram of", filetitle),
+                               titlefont=list(size=12)) %>%
+                        layout(paper_bgcolor='white', plot_bgcolor='#5875D5') %>%
+                        add_trace(marker = list(size = 5), type = 'scatter') %>%
+                        hide_colorbar()
+            
+            
+            ## Spectrum ##
+            specvals <- spec(wav,
+                             f = round(samprate_choice),
+                             col = "red",
+                             lwd=3,
+                             plot = FALSE,
+                             wn = window_choice,
+                             flab = "", yaxt = "n",
+                             from = specmin_choice,
+                             to = specmax_choice,
+                             flim = c(minfreq_choice, maxfreq_choice),
+                             dB = "max0"
+            )
+            
+            
+            spec <- round(data.frame(specvals),3) %>%
+                mutate("Amplitude (dB)"= y, 
+                       "Frequency (kHz)" = x) %>%
+                select(-x,-y) %>% filter(`Frequency (kHz)` < maxfreq_choice)
+            
+            spectcks <- seq(from = round(min(specvals[,2])), to = 0, by = 5)
+            p2 <- ggplotly(ggplot(data=spec, aes(x=`Frequency (kHz)`, y=`Amplitude (dB)`, group=1)) 
+                           + geom_line(color="red", size=0.5)  
+                           #+ ggtitle("Spectrum")
+                           +  coord_flip() + 
+                               theme(axis.text.x = element_text(color = "grey20", size = 8, angle = 90, hjust = .5, vjust = .5, face = "plain"),
+                                     axis.text.y = element_text(color = "grey20", size = 8, angle = 0, hjust = 1, vjust = 0, face = "plain"),  
+                                     axis.title.x = element_text(color = "grey20", size = 8, angle = 0, hjust = .5, vjust = 0, face = "plain"),
+                                     axis.title.y = element_text(color = "grey20", size = 8, angle = 90, hjust = .5, vjust = .5, face = "plain"),
+                                     panel.border = element_rect(colour = "black", fill=NA, size=0.5)))
+            
+            #axis(1, at = spectcks, labels = spectcks, tck = -.025, pos = minfreq_choice)
+            
+            os <-oscillo(wav, 
+                         f = samprate_choice,
+                         from = mintime_choice,
+                         to = maxtime_choice, 
+                         plot = FALSE)
+            
+            n = nrow(os)
+            fac = (maxtime_choice - mintime_choice)/n
+            
+            os <- data.frame(os, index = seq(1, length(os))) %>% mutate(Amplitude = os/1000, index = index - 1)%>% 
+                mutate("Time (s)" = index * fac)
+            
+            p3 <- ggplotly(ggplot(data=os, aes(x = `Time (s)`, y = Amplitude)) + geom_line(size=0.2) +
+                               geom_hline(yintercept=0, linetype="dashed", 
+                                          color = "white", size=0.2) + 
+                               theme(axis.text.x = element_text(color = "grey20", size = 8, angle = 90, hjust = .5, vjust = .5, face = "plain"),
+                                     axis.text.y = element_text(color = "grey20", size = 8, angle = 0, hjust = 1, vjust = 0, face = "plain"),  
+                                     axis.title.x = element_text(color = "grey20", size = 8, angle = 0, hjust = .5, vjust = 0, face = "plain"),
+                                     axis.title.y = element_text(color = "grey20", size = 8, angle = 90, hjust = .5, vjust = .5, face = "plain"),
+                                     panel.border = element_rect(colour = "black", fill=NA, size=0.5)))
+            ax <- list(
+                showline = TRUE,
+                #mirror = TRUE,
+                linewidth = 0.5,
+                linecolor = toRGB("black")
+            )
+            
+            subplot(p1, p2, p3,
+                    nrows = 2, 
+                    widths = c(0.8, 0.2), margin = 0.01,
+                    heights= c(0.8, 0.2),
+                    shareY = TRUE, shareX = TRUE) %>%
+                layout(xaxis = ax, yaxis = ax,  plot_bgcolor='white')
+            
+            #browsable(div(
+            #    style = "display: flex; flex-wrap: wrap; justify-content: center",
+            #    div(p1, style = "width: 100%; border: 1px solid;")
+            #))
+        })
+
         
         #### Segmentation ####
         output$segment <- renderPlot({

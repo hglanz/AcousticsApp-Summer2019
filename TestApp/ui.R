@@ -7,7 +7,7 @@ library(DT)
 
 shinyUI(navbarPage("Acoustic Analysis",
                    tabPanel("Exploration",
-                            sidebarPanel(width = 4,
+                            sidebarPanel(width = 3,
                                          h1("Acoustic Analysis"),
                                          br(),
                                          
@@ -28,7 +28,6 @@ shinyUI(navbarPage("Acoustic Analysis",
                                                           
                                                           div(style="display:inline-block", uiOutput("mintimelimit")),
                                                           div(style="display:inline-block", uiOutput("maxtimelimit")),
-                                                          div(style="display:inline-block", uiOutput("durationlimit")),
                                                           br(),
                                                           div(style="display:inline-block", uiOutput("minfreqlimit")),
                                                           div(style="display:inline-block", uiOutput("maxfreqlimit")),
@@ -76,6 +75,7 @@ shinyUI(navbarPage("Acoustic Analysis",
                                       plotOutput("spectro",
                                                  width = "auto",
                                                  height = "800px"),
+                                      plotlyOutput("plotly",  width = "auto", height = "600px"),
                                       
                                       uiOutput("SpecHelpInfo"),
                                       
