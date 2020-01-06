@@ -760,7 +760,7 @@ output$spectro <- renderPlot({
         colaxis <- "black"
         rm(myinput)
         
-        layout(matrix(c(1,0,2,3,4,0),ncol = 2, byrow = T),widths=c(3,.8), heights = c(.65, 4, 1.5))
+        #layout(matrix(c(1,0,2,3,4,0),ncol = 1, byrow = T),widths=c(3,.8), heights = c(.65, 4, 1.5))
         
         ## Amplitude Gradient Legend ##
         n <- nrow(wave)
@@ -779,116 +779,89 @@ output$spectro <- renderPlot({
                 fontlab = scalefontlab, cexlab = scalecexlab, 
                 collab = collab, textlab = scalelab, colaxis = colaxis, side = 1)
         
-        ## Spectrogram ##
-        par(mar=c(4,4,2,0.5))
-        spectro(wav,
-                tlab = "",
-                # xaxt = "n",
-                f = samprate_choice,
-                tlim = c(mintime_choice, maxtime_choice),
-                flim = c(minfreq_choice, maxfreq_choice),
-                main = paste("Spectrogram of", filetitle),
-                font.main = 1,
-                cex.main= 1.7,
-                cex.lab=1.3,
-                wn = window_choice,
-                zp = zp_choice,
-                ovlp = ovlp_choice,
-                scale = FALSE)
-        abline(v = specmin_choice, col = "red", lty = 2, lwd=3)
-        abline(v = specmax_choice, col = "red", lty = 2, lwd=3)
-        
-        ## Spectrum ##
-        par(mar=c(4,1,2,0.5))
-        specvals <- spec(wav,
-                         f = round(samprate_choice),
-                         col = "red",
-                         lwd=3,
-                         plot = 2,
-                         wn = window_choice,
-                         flab = "", yaxt = "n",
-                         from = specmin_choice,
-                         to = specmax_choice,
-                         flim = c(minfreq_choice, maxfreq_choice),
-                         dB = "max0",
-                         xaxt = "n",
-                         main = "Spectrum",
-                         alab = "Amplitude (dB)",
-                         cex.axis = 1.5
-        )
-        spectcks <- seq(from = round(min(specvals[,2])), to = 0, by = 5)
-        axis(1, at = spectcks, labels = spectcks, tck = -.025, pos = minfreq_choice)
-        axis(side = 1, at = c(0), tck = -.025)
-        #abline(h = input$minfreq, col = "blue", lty = 2, lwd=3)
-        # text(median(spectcks), -.05, "Amplitude (dB)", cex = 1.5)
-        
-        ## Oscillogram ##
-        par(mar=c(4,4,2,0.5))
-        oscillo(wav, 
-                f = samprate_choice,
-                from = input$mintime,
-                to = input$maxtime,
-                cexlab = 0.87)
-        abline(v = specmin_choice, col = "red", lty = 2, lwd=3)
-        abline(v = specmax_choice, col = "red", lty = 2, lwd=3)
+        # ## Spectrogram ##
+        # par(mar=c(4,4,2,0.5))
+        # spectro(wav,
+        #         tlab = "",
+        #         # xaxt = "n",
+        #         f = samprate_choice,
+        #         tlim = c(mintime_choice, maxtime_choice),
+        #         flim = c(minfreq_choice, maxfreq_choice),
+        #         main = paste("Spectrogram of", filetitle),
+        #         font.main = 1,
+        #         cex.main= 1.7,
+        #         cex.lab=1.3,
+        #         wn = window_choice,
+        #         zp = zp_choice,
+        #         ovlp = ovlp_choice,
+        #         scale = FALSE)
+        # abline(v = specmin_choice, col = "red", lty = 2, lwd=3)
+        # abline(v = specmax_choice, col = "red", lty = 2, lwd=3)
+        # 
+        # ## Spectrum ##
+        # par(mar=c(4,1,2,0.5))
+        # specvals <- spec(wav,
+        #                  f = round(samprate_choice),
+        #                  col = "red",
+        #                  lwd=3,
+        #                  plot = 2,
+        #                  wn = window_choice,
+        #                  flab = "", yaxt = "n",
+        #                  from = specmin_choice,
+        #                  to = specmax_choice,
+        #                  flim = c(minfreq_choice, maxfreq_choice),
+        #                  dB = "max0",
+        #                  xaxt = "n",
+        #                  main = "Spectrum",
+        #                  alab = "Amplitude (dB)",
+        #                  cex.axis = 1.5
+        # )
+        # spectcks <- seq(from = round(min(specvals[,2])), to = 0, by = 5)
+        # axis(1, at = spectcks, labels = spectcks, tck = -.025, pos = minfreq_choice)
+        # axis(side = 1, at = c(0), tck = -.025)
+        # #abline(h = input$minfreq, col = "blue", lty = 2, lwd=3)
+        # # text(median(spectcks), -.05, "Amplitude (dB)", cex = 1.5)
+        # 
+        # ## Oscillogram ##
+        # par(mar=c(4,4,2,0.5))
+        # oscillo(wav, 
+        #         f = samprate_choice,
+        #         from = input$mintime,
+        #         to = input$maxtime,
+        #         cexlab = 0.87)
+        # abline(v = specmin_choice, col = "red", lty = 2, lwd=3)
+        # abline(v = specmax_choice, col = "red", lty = 2, lwd=3)
         
         
         output$plotly <- renderPlotly({
             
             ##Spectrogram
-            par(mar=c(4,4,2,0.5))
-            sp <- spectro(wav,
-                          tlab = "",
-                          # xaxt = "n",
-                          f = samprate_choice,
-                          tlim = c(mintime_choice, maxtime_choice),
-                          flim = c(minfreq_choice, maxfreq_choice),
-                          wn = window_choice,
-                          zp = zp_choice,
-                          ovlp = ovlp_choice,
-                          scale = FALSE,
-                          plot = FALSE)
-            amp <-
-                melt(sp$amp, value.name = "Amplitude") %>%
-                select(FrequencyIndex = Var1, TimeIndex = Var2, Amplitude)
-            freq <-
-                melt(sp$freq, value.name = "Frequency") %>%
-                mutate(FrequencyIndex = row_number(), Frequency = Frequency * 1000)
-            time <-
-                melt(sp$time, value.name = "Time") %>%
-                mutate(TimeIndex = row_number())
-            sp <-
-                amp %>%
-                left_join(freq, by = "FrequencyIndex") %>%
-                left_join(time, by = "TimeIndex") %>%
-                select(Time, Frequency, Amplitude)
-            sp <- sp %>% filter(Amplitude > -35, Frequency > 0, Time > 0) %>%
-                mutate("Time (s)" = Time, "Frequency (kHz)" = Frequency/1000) %>%
-                select(-Frequency, -Time)
+            
+            p1 <- ggspectro(wav, f = samprate_choice, ovlp = ovlp_choice, wn = window_choice,
+                           zp = zp_choice, tlim = c(mintime_choice, maxtime_choice),
+                           flim = c(minfreq_choice, maxfreq_choice), scale = FALSE)
+
             
             
-            
-            pal <- c('white','gray100', "steelblue1", "blue", "springgreen4","green", "yellow", "orange", "red")
-            
-            if (nrow(sp) <1000){
-                dot_size <- 5
-            }
-            if (nrow(sp) < 5000){
-                
-                dot_size <- 2
-            } else {
-               
-                dot_size <- 0.1
-            }
-            #print(nrow(sp))
-            #print(dot_size)
-            p1 <- plot_ly(sp, x = sp$`Time (s)`, y = sp$`Frequency (kHz)`, type = "scatter", mode = "markers",
-                         color = sp$Amplitude, colors = pal) %>%
-                        layout(title=paste("Spectrogram of", filetitle),
-                               titlefont=list(size=12)) %>%
-                        layout(paper_bgcolor='white', plot_bgcolor='#5875D5') %>%
-                        add_trace(marker = list(size = 5), type = 'scatter') %>%
-                        hide_colorbar()
+            ## using geom_tile ##
+            p1 <- p1 + geom_tile(aes(fill = amplitude)) 
+            p1 <- p1 + stat_contour(geom="polygon", aes(
+                fill=..level..), bins=200) + scale_fill_gradientn(name="Amplitude\n(dB)\n", 
+                limits=c(-28,0), na.value="transparent",
+                colours = spectro.colors(30)) + ylim(minfreq_choice, maxfreq_choice) + 
+                theme(legend.position="none",
+                      panel.grid.major.y = element_line(size=.1, color="grey", linetype=3),
+                      axis.text.x = element_text(color = "grey20", size = 6, angle = 90, hjust = .5, vjust = .5, face = "plain"),
+                      axis.text.y = element_text(color = "grey20", size = 6, angle = 0, hjust = 1, vjust = 0, face = "plain"),  
+                      axis.title.x = element_text(color = "grey20", size = 8, angle = 0, hjust = .5, vjust = 0, face = "plain"),
+                      axis.title.y = element_text(color = "grey20", size = 8, angle = 90, hjust = .5, vjust = .5, face = "plain"),
+                      panel.border = element_rect(colour = "black", fill=NA, size=0.5),
+                      plot.title = element_text(size=9, face = "plain", hjust = .3)) + 
+                ggtitle(paste("Spectrogram of", filetitle)) + 
+                geom_vline(xintercept=specmin_choice, linetype="dashed", color = "red", size=.3) + 
+                geom_vline(xintercept=specmax_choice, linetype="dashed", color = "red", size=.3)
+                                                                                                                                                
+                        
             
             
             ## Spectrum ##
@@ -916,11 +889,11 @@ output$spectro <- renderPlot({
                            + geom_line(color="red", size=0.5)  
                            #+ ggtitle("Spectrum")
                            +  coord_flip() + 
-                               theme(axis.text.x = element_text(color = "grey20", size = 8, angle = 90, hjust = .5, vjust = .5, face = "plain"),
-                                     axis.text.y = element_text(color = "grey20", size = 8, angle = 0, hjust = 1, vjust = 0, face = "plain"),  
+                               theme(axis.text.x = element_text(color = "grey20", size = 6, angle = 0, hjust = .5, vjust = .5, face = "plain"),
+                                     axis.text.y = element_text(color = "grey20", size = 6, angle = 0, hjust = 1, vjust = 0, face = "plain"),  
                                      axis.title.x = element_text(color = "grey20", size = 8, angle = 0, hjust = .5, vjust = 0, face = "plain"),
                                      axis.title.y = element_text(color = "grey20", size = 8, angle = 90, hjust = .5, vjust = .5, face = "plain"),
-                                     panel.border = element_rect(colour = "black", fill=NA, size=0.5)))
+                                     panel.border = element_rect(colour = "black", fill=NA, size=0.5)), dynamicTicks = TRUE)
             
             #axis(1, at = spectcks, labels = spectcks, tck = -.025, pos = minfreq_choice)
             
@@ -939,29 +912,27 @@ output$spectro <- renderPlot({
             p3 <- ggplotly(ggplot(data=os, aes(x = `Time (s)`, y = Amplitude)) + geom_line(size=0.2) +
                                geom_hline(yintercept=0, linetype="dashed", 
                                           color = "white", size=0.2) + 
-                               theme(axis.text.x = element_text(color = "grey20", size = 8, angle = 90, hjust = .5, vjust = .5, face = "plain"),
-                                     axis.text.y = element_text(color = "grey20", size = 8, angle = 0, hjust = 1, vjust = 0, face = "plain"),  
+                               theme(axis.text.x = element_text(color = "grey20", size = 6, angle = 0, hjust = .5, vjust = .5, face = "plain"),
+                                     axis.text.y = element_text(color = "grey20", size = 6, angle = 0, hjust = 1, vjust = 0, face = "plain"),  
                                      axis.title.x = element_text(color = "grey20", size = 8, angle = 0, hjust = .5, vjust = 0, face = "plain"),
                                      axis.title.y = element_text(color = "grey20", size = 8, angle = 90, hjust = .5, vjust = .5, face = "plain"),
-                                     panel.border = element_rect(colour = "black", fill=NA, size=0.5)))
+                                     panel.border = element_rect(colour = "black", fill=NA, size=0.5)) +
+                             geom_vline(xintercept=specmin_choice, linetype="dashed", color = "red", size=.3) + 
+                             geom_vline(xintercept=specmax_choice, linetype="dashed", color = "red", size=.3), dynamicTicks = TRUE)
             ax <- list(
                 showline = TRUE,
-                #mirror = TRUE,
                 linewidth = 0.5,
                 linecolor = toRGB("black")
             )
             
-            subplot(p1, p2, p3,
+            subplot(ggplotly(p1, tooltip="none", dynamicTicks = TRUE), p2, p3,
                     nrows = 2, 
                     widths = c(0.8, 0.2), margin = 0.01,
                     heights= c(0.8, 0.2),
                     shareY = TRUE, shareX = TRUE) %>%
                 layout(xaxis = ax, yaxis = ax,  plot_bgcolor='white')
             
-            #browsable(div(
-            #    style = "display: flex; flex-wrap: wrap; justify-content: center",
-            #    div(p1, style = "width: 100%; border: 1px solid;")
-            #))
+           
         })
 
         

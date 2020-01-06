@@ -68,38 +68,39 @@ shinyUI(navbarPage("Acoustic Analysis",
                                          )
                             ),
                             mainPanel(width = 8,
-                                      tags$style(type="text/css",
-                                                 ".shiny-output-error { visibility: hidden; }",
-                                                 ".shiny-output-error:before { visibility: hidden; }"
-                                      ),
-                                      plotOutput("spectro",
-                                                 width = "auto",
-                                                 height = "800px"),
-                                      plotlyOutput("plotly",  width = "auto", height = "600px"),
-                                      
-                                      uiOutput("SpecHelpInfo"),
-                                      
-                                      uiOutput("SampHelpInfo"),
-                                      
-                                      uiOutput("WindowHelpInfo"),
-                                      
-                                      uiOutput("OvlpHelpInfo"),
-                                      
-                                      uiOutput("ZpHelpInfo")
-                                      
-                                      
-                                      # textOutput("file1"),
-                                      # textOutput("file2"),
-                                      # textOutput("windowchk"),
-                                      # textOutput("zpchk"),
-                                      # textOutput("zpval")
-                                      # textOutput("windowval"),
-                                      # textOutput("sampchk"),
-                                      # textOutput("samprateval"),
-                                      # textOutput("speccheck"),
-                                      # textOutput("specmin"),
-                                      # textOutput("specmax")
-                                      
+                                      conditionalPanel("output.filechosen == true",
+                                          tags$style(type="text/css",
+                                                     ".shiny-output-error { visibility: hidden; }",
+                                                     ".shiny-output-error:before { visibility: hidden; }"
+                                          ),
+                                          plotOutput("spectro",
+                                                    width = "auto",
+                                                    height = "100px"),
+                                          plotlyOutput("plotly",  width = "auto", height = "600px"),
+                                          
+                                          uiOutput("SpecHelpInfo"),
+                                          
+                                          uiOutput("SampHelpInfo"),
+                                          
+                                          uiOutput("WindowHelpInfo"),
+                                          
+                                          uiOutput("OvlpHelpInfo"),
+                                          
+                                          uiOutput("ZpHelpInfo")
+                                          
+                                          
+                                          # textOutput("file1"),
+                                          # textOutput("file2"),
+                                          # textOutput("windowchk"),
+                                          # textOutput("zpchk"),
+                                          # textOutput("zpval")
+                                          # textOutput("windowval"),
+                                          # textOutput("sampchk"),
+                                          # textOutput("samprateval"),
+                                          # textOutput("speccheck"),
+                                          # textOutput("specmin"),
+                                          # textOutput("specmax")
+                                      )   
                             )
                    ),
                    tabPanel("Segmentation",
