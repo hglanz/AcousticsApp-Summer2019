@@ -628,6 +628,7 @@ output$spectro <- renderPlot({
     }
     
     if (exists("wav")) {
+        print(input$maxfreq)
         ### Determine Window Function ###
         if (!is.null(input$windowcheck)) {
             if (input$windowcheck) {
@@ -715,12 +716,13 @@ output$spectro <- renderPlot({
         }
         
         ### Determine Time Limits ###
+
         if (!is.null(input$mintime) & !is.null(input$maxtime)) {
             mintime_choice <- input$mintime
             maxtime_choice <- input$maxtime
         } else {
             mintime_choice <- 0
-            maxtime_choice <- length(wav@left)/wav@samp.rate
+            maxtime_choice <- round(length(wav@left)/wav@samp.rate,3)
         }
         
         ### Determine Freq Limits ###
@@ -729,12 +731,13 @@ output$spectro <- renderPlot({
             maxfreq_choice <- input$maxfreq
         } else {
             minfreq_choice <- 0
-            
             maxfreq_pos <- which(diff(rev(apply(sp$amp, 1, max) <= -29)) < 0)[1]
             if (length(maxfreq_pos) == 0) {
                 maxfreq_choice <- rev(sp$freq)[1]
+                
             } else {
-                maxfreq_choice <- min(rev(sp$freq)[maxfreq_pos]+.5, max(sp$freq))
+                maxfreq_choice <- round(min(rev(sp$freq)[maxfreq_pos]+.5, max(sp$freq),na.rm = TRUE),3)
+                
             }
             
         }
@@ -768,8 +771,8 @@ output$spectro <- renderPlot({
         z <- stdft(wave = wave, f = samprate_choice, wl = wl, zp = zp, step = step, 
                    wn = wn, fftw = fftw, scale = norm, complex = complex, 
                    correction = correction)
-        fl1 <- minfreq_choice * nrow(z) * 2000/f
-        fl2 <- maxfreq_choice * nrow(z) * 2000/f
+        fl1 <- input$minfreq * nrow(z) * 2000/f
+        fl2 <- input$maxfreq * nrow(z) * 2000/f
         z <- z[(fl1:fl2) + 1, ]
         z <- 20 * log10(z)
         maxz <- round(max(z, na.rm = TRUE))
@@ -836,19 +839,22 @@ output$spectro <- renderPlot({
         output$plotly <- renderPlotly({
             
             ##Spectrogram
+            minf <- input$minfreq
+            maxf <- input$maxfreq
+            mint <- input$mintime
+            maxt <- input$maxtime
             
-            p1 <- ggspectro(wav, f = samprate_choice, ovlp = ovlp_choice, wn = window_choice,
-                           zp = zp_choice, tlim = c(mintime_choice, maxtime_choice),
-                           flim = c(minfreq_choice, maxfreq_choice), scale = FALSE)
-
             
+            
+            p1 <- ggspectro(wav, f = samprate_choice, ovlp = ovlp_choice, wn = window_choice, zp = zp_choice)
             
             ## using geom_tile ##
             p1 <- p1 + geom_tile(aes(fill = amplitude)) 
-            p1 <- p1 + stat_contour(geom="polygon", aes(
-                fill=..level..), bins=200) + scale_fill_gradientn(name="Amplitude\n(dB)\n", 
+            #+ stat_contour(geom="polygon", aes(fill=..level..), bins=200)
+            p1 <- p1  + scale_fill_gradientn(name="Amplitude\n(dB)\n", 
                 limits=c(-28,0), na.value="transparent",
-                colours = spectro.colors(30)) + ylim(minfreq_choice, maxfreq_choice) + 
+                colours = spectro.colors(30)) + ylim(input$minfreq, input$maxfreq) + 
+                xlim(input$mintime, input$maxtime) +
                 theme(legend.position="none",
                       panel.grid.major.y = element_line(size=.1, color="grey", linetype=3),
                       axis.text.x = element_text(color = "grey20", size = 6, angle = 90, hjust = .5, vjust = .5, face = "plain"),
@@ -857,7 +863,7 @@ output$spectro <- renderPlot({
                       axis.title.y = element_text(color = "grey20", size = 8, angle = 90, hjust = .5, vjust = .5, face = "plain"),
                       panel.border = element_rect(colour = "black", fill=NA, size=0.5),
                       plot.title = element_text(size=9, face = "plain", hjust = .3)) + 
-                ggtitle(paste("Spectrogram of", filetitle)) + 
+                #ggtitle(paste("Spectrogram of", filetitle)) + 
                 geom_vline(xintercept=specmin_choice, linetype="dashed", color = "red", size=.3) + 
                 geom_vline(xintercept=specmax_choice, linetype="dashed", color = "red", size=.3)
                                                                                                                                                 
@@ -873,8 +879,9 @@ output$spectro <- renderPlot({
                              wn = window_choice,
                              flab = "", yaxt = "n",
                              from = specmin_choice,
+                             alim = c(-30,0),
                              to = specmax_choice,
-                             flim = c(minfreq_choice, maxfreq_choice),
+                             flim = c(input$minfreq, input$maxfreq),
                              dB = "max0"
             )
             
@@ -882,12 +889,14 @@ output$spectro <- renderPlot({
             spec <- round(data.frame(specvals),3) %>%
                 mutate("Amplitude (dB)"= y, 
                        "Frequency (kHz)" = x) %>%
-                select(-x,-y) %>% filter(`Frequency (kHz)` < maxfreq_choice)
+                select(-x,-y) %>% filter(`Frequency (kHz)` < maxfreq_choice) %>%
+                filter(`Amplitude (dB)` > -30)
+            
+            min_amp <- min(spec$`Amplitude (dB)`)
             
             spectcks <- seq(from = round(min(specvals[,2])), to = 0, by = 5)
             p2 <- ggplotly(ggplot(data=spec, aes(x=`Frequency (kHz)`, y=`Amplitude (dB)`, group=1)) 
-                           + geom_line(color="red", size=0.5)  
-                           #+ ggtitle("Spectrum")
+                           + geom_line(color="red", size=0.5)
                            +  coord_flip() + 
                                theme(axis.text.x = element_text(color = "grey20", size = 6, angle = 0, hjust = .5, vjust = .5, face = "plain"),
                                      axis.text.y = element_text(color = "grey20", size = 6, angle = 0, hjust = 1, vjust = 0, face = "plain"),  
@@ -899,19 +908,19 @@ output$spectro <- renderPlot({
             
             os <-oscillo(wav, 
                          f = samprate_choice,
-                         from = mintime_choice,
-                         to = maxtime_choice, 
+                         #from = input$mintime,
+                         #to = input$maxtime, 
                          plot = FALSE)
             
             n = nrow(os)
-            fac = (maxtime_choice - mintime_choice)/n
+            fac = (input$maxtime - input$mintime)/n
             
             os <- data.frame(os, index = seq(1, length(os))) %>% mutate(Amplitude = os/1000, index = index - 1)%>% 
-                mutate("Time (s)" = index * fac)
+                mutate("Time (s)" = index * fac) 
             
             p3 <- ggplotly(ggplot(data=os, aes(x = `Time (s)`, y = Amplitude)) + geom_line(size=0.2) +
                                geom_hline(yintercept=0, linetype="dashed", 
-                                          color = "white", size=0.2) + 
+                                          color = "white", size=0.2) + xlim(input$mintime,input$maxtime) +
                                theme(axis.text.x = element_text(color = "grey20", size = 6, angle = 0, hjust = .5, vjust = .5, face = "plain"),
                                      axis.text.y = element_text(color = "grey20", size = 6, angle = 0, hjust = 1, vjust = 0, face = "plain"),  
                                      axis.title.x = element_text(color = "grey20", size = 8, angle = 0, hjust = .5, vjust = 0, face = "plain"),
@@ -925,12 +934,17 @@ output$spectro <- renderPlot({
                 linecolor = toRGB("black")
             )
             
+            f <- list(size = 12)
+            
             subplot(ggplotly(p1, tooltip="none", dynamicTicks = TRUE), p2, p3,
                     nrows = 2, 
                     widths = c(0.8, 0.2), margin = 0.01,
                     heights= c(0.8, 0.2),
                     shareY = TRUE, shareX = TRUE) %>%
-                layout(xaxis = ax, yaxis = ax,  plot_bgcolor='white')
+                layout(xaxis = ax, yaxis = ax,  plot_bgcolor='white', annotations = list(
+                list(x = 0.25 , y = 1.04, text = paste("Spectrogram of", filetitle), showarrow = F, xref='paper', yref='paper', font = f),
+                list(x = 0.97 , y = 1.04, text = "Spectrum", showarrow = F, xref='paper', yref='paper', font = f))
+            )
             
            
         })
