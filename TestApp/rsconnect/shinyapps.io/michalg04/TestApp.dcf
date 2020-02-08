@@ -5,8 +5,8 @@ account: michalg04
 server: shinyapps.io
 hostUrl: https://api.shinyapps.io/v1
 appId: 1012240
-bundleId: 2759484
+bundleId: 2783946
 url: https://michalg04.shinyapps.io/TestApp/
-when: 1580248918.22446
+when: 1581128305.04408
 asMultiple: FALSE
 asStatic: FALSE

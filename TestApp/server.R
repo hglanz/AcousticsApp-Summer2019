@@ -12,12 +12,16 @@ library(dplyr)
 library(purrr)
 library(reshape2)
 library(htmltools)
+if(!require(shinyWidgets)) install.packages(shinyWidgets)
+library(wavesurfer)
+library(htmlwidgets)
 
 
 seed = as.numeric(Sys.time())
 load("DefaultWavFiles-ForApp.RData")
 source("spectro_hg.R")
 source("seg_functions.R")
+source("wavesurfer.R")
 
 shinyServer(function(input, output, session) {
     
@@ -628,7 +632,6 @@ output$spectro <- renderPlot({
     }
     
     if (exists("wav")) {
-        print(input$maxfreq)
         ### Determine Window Function ###
         if (!is.null(input$windowcheck)) {
             if (input$windowcheck) {
@@ -948,7 +951,6 @@ output$spectro <- renderPlot({
             
            
         })
-
         
         #### Segmentation ####
         output$segment <- renderPlot({
@@ -1287,7 +1289,66 @@ output$aboutInfo <- renderText({
     
 })
 
+output$my_ws <- renderWavesurfer({
+    inFile <- filevalues$file1$datapath
+    ### Read .wav file in ###
+    if (!is.null(inFile)) {
+        
+        wav <- readWave(inFile)
+        sp <- spectro(wav, plot = F)
+        
+        filetitle <- filevalues$file1$name
+        
+    } else if (filevalues$file2 != 1) {
+        
+        ### Assign wav File & Title ###
+        wav <- switch(filevalues$file2,
+                      "2" = sine1,
+                      "3" = sine2,
+                      "4" = sine3,
+                      "5" = square,
+                      "6" = triangle,
+                      "7" = whale,
+                      "8" = dolphin,
+                      "9" = noise)
+        sp <- spectro(wav, plot = F)
+        filetitle <- switch(filevalues$file2,
+                            "2" = "Sine1",
+                            "3" = "Sine2",
+                            "4" = "Sine3",
+                            "5" = "Square",
+                            "6" = "Triangle",
+                            "7" = "Whale",
+                            "8" = "Dolphin",
+                            "9" = "Noise")
+    }
     
+    if (exists("wav")) {
+        
+        savewav(wav, filename = "tempFile.wav")
+        shiny::addResourcePath("wav", getwd())
+    
+        wavesurfer(paste0("wav/","tempFile.wav")) %>%
+            ws_set_wave_color("royalblue") %>%
+            ws_timeline()
+    }
+}) 
+
+# toggle plugins
+observe({if(input$minimap) ws_minimap("my_ws") else ws_destroy_minimap("my_ws")})
+observe({if(input$spectrogram) ws_spectrogram("my_ws") else ws_destroy_spectrogram("my_ws")})
+observe({if(input$timeline) ws_timeline("my_ws") else ws_destroy_timeline("my_ws")})
+observe({if(input$cursor) ws_cursor("my_ws") else ws_destroy_cursor("my_ws")})
+observeEvent(input$regions, {ws_annotator("my_ws")}) # not toggleable yet
+
+# controllers
+observeEvent(input$play, {ws_play("my_ws")})
+observeEvent(input$pause, {ws_pause("my_ws")})
+observeEvent(input$mute, {ws_toggle_mute("my_ws")})
+observeEvent(input$skip_forward, {ws_skip_forward("my_ws", 3)})
+observeEvent(input$skip_backward, {ws_skip_backward("my_ws", 3)})
+observeEvent(input$stop, {ws_stop("my_ws")})
+observe({ws_set_volume("my_ws", input$volume/50 )})
     
 
 # delete temporary files created
