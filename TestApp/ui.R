@@ -1,13 +1,29 @@
 library(shiny)
+library(seewave)
+library(tuneR)
 library(plotly)
 library(shinyalert)
+library(grid)
+library(filesstrings)
+library(warbleR)
+library(DT)
+library(soundgen)
+library(dplyr)
+library(purrr)
+library(reshape2)
+library(htmltools)
+if(!require(shinyWidgets)) install.packages(shinyWidgets)
+library(wavesurfer)
+library(htmlwidgets)
 library(shinyjs)
 library(shinyBS)
-library(DT)
+
+
 
 shinyUI(navbarPage("Acoustic Analysis",
+                   tabPanel("About", uiOutput("aboutInfo")),
                    tabPanel("Exploration",
-                            sidebarPanel(width = 3,
+                            sidebarPanel(width = 4,
                                          h1("Acoustic Analysis"),
                                          br(),
                                          
@@ -23,48 +39,56 @@ shinyUI(navbarPage("Acoustic Analysis",
                                                           
                                                           br(),
                                                           
-                                                          uiOutput("audioplay"),
+                                                          #uiOutput("audioplay"),
                                                           h3("General Information:"),
                                                           
-                                                          div(style="display:inline-block", uiOutput("mintimelimit")),
-                                                          div(style="display:inline-block", uiOutput("maxtimelimit")),
-                                                          br(),
-                                                          div(style="display:inline-block", uiOutput("minfreqlimit")),
-                                                          div(style="display:inline-block", uiOutput("maxfreqlimit")),
-                                                          br(),
+                                                          # div(style="display:inline-block", uiOutput("mintimelimit")),
+                                                          # div(style="display:inline-block", uiOutput("maxtimelimit")),
+                                                          # br(),
+                                                          # div(style="display:inline-block", uiOutput("minfreqlimit")),
+                                                          # div(style="display:inline-block", uiOutput("maxfreqlimit")),
+                                                          #br(),
                                                           
                                                           
                                                           ## Spectrum
-                                                          div(style="display:inline-block", uiOutput("spectrumcheck")),
-                                                          div(style="display:inline-block", actionButton("specthelp", "", icon = icon("question-circle"))),
-                                                          br(),
+                                                          #div(style="display:inline-block", uiOutput("spectrumcheck")),
                                                           
-                                                          div(style="display:inline-block", uiOutput("spectrummin")),
-                                                          div(style="display:inline-block", uiOutput("spectrummax")),
+                                              
+                                                          div(style="display: inline-block;vertical-align:top; width: 100px;", uiOutput("spectrummin")),
+                                                          div(style="display: inline-block;vertical-align:top; width: 100px;", uiOutput("spectrummax")),
+                                                          #div(style="display: inline-block;vertical-align:top; width: 1px;",HTML("<br>")),
+                                                          div(style="display: inline-block;vertical-align:top; width: 100px;", actionButton("specthelp", "", icon = icon("question-circle"))),
                                                           br(),
                                                           
                                                           ## Sampling Rate
-                                                          div(style="display:inline-block", uiOutput("sampcheck")),
-                                                          div(style="display:inline-block", actionButton("samphelp", "", icon = icon("question-circle"))),
-                                                          uiOutput("samplingrate"),
+                                                          #div(style="display:inline-block", uiOutput("sampcheck")),
+                                                          div(style="display: inline-block;vertical-align:top; width: 200px;", uiOutput("samplingrate")),
+                                                          #div(style="display: inline-block;vertical-align:top; width: 5px;",HTML("<br>")),
+                                                          div(style="display: inline-block;vertical-align:top; width: 200px;", actionButton("samphelp", "", icon = icon("question-circle"))),
                                                           br(),
                                                           
                                                           ## Window Function
-                                                          div(style="display:inline-block", uiOutput("windowcheck")),
-                                                          div(style="display:inline-block", actionButton("windowhelp", "", icon = icon("question-circle"))),
-                                                          uiOutput("window"),
+                                                          #div(style="display:inline-block", uiOutput("windowcheck")),
+                                                          div(style="display: inline-block;vertical-align:top; width: 200px;", uiOutput("window")),
+                                                          #div(style="display: inline-block;vertical-align:top; width: 5px;",HTML("<br>")),
+                                                          div(style="display: inline-block;vertical-align:top; width: 200px;", actionButton("windowhelp", "", icon = icon("question-circle"))),
+  
                                                           br(),
                                                           
                                                           ## Overlapping
-                                                          div(style="display:inline-block", uiOutput("ovlpcheck")),
-                                                          div(style="display:inline-block", actionButton("ovlphelp", "", icon = icon("question-circle"))),
-                                                          uiOutput("ovlp"),
+                                                          #div(style="display:inline-block", uiOutput("ovlpcheck")),
+                                                          div(style="display: inline-block;vertical-align:top; width: 200px;",uiOutput("ovlp")),
+                                                          #div(style="display: inline-block;vertical-align:top; width: 5px;",HTML("<br>")),
+                                                          div(style="display: inline-block;vertical-align:top; width: 200px;", actionButton("ovlphelp", "", icon = icon("question-circle"))),
+                                                          
                                                           br(),
                                                           
                                                           ## Zero Padding
-                                                          div(style="display:inline-block", uiOutput("zpcheck")),
-                                                          div(style="display:inline-block", actionButton("zphelp", "", icon = icon("question-circle"))),
-                                                          uiOutput("zp")
+                                                          #div(style="display:inline-block", uiOutput("zpcheck")),
+                                                          
+                                                          div(style="display: inline-block;vertical-align:top; width: 200px;",uiOutput("zp")),
+                                                          #div(style="display: inline-block;vertical-align:top; width: 5px;",HTML("<br>")),
+                                                          div(style="display: inline-block;vertical-align:top; width: 200px;", actionButton("zphelp", "", icon = icon("question-circle")))
                                          )
                             ),
                             mainPanel(width = 8,
@@ -77,22 +101,23 @@ shinyUI(navbarPage("Acoustic Analysis",
                                                     width = "auto",
                                                     height = "100px"),
                                           plotlyOutput("plotly",  width = "auto", height = "600px"),
-                                          
-                                          switchInput("minimap", "Minimap", inline = TRUE),
-                                          switchInput("spectrogram", "spectrogram", inline = TRUE),
-                                          switchInput("timeline", "timeline", inline = TRUE),
-                                          switchInput("cursor", "cursor", inline = TRUE),
-                                          actionButton("regions", "annotator", icon = icon("square")),
-                                          tags$br(),
-                                          wavesurferOutput("my_ws"),
-                                          tags$br(),
-                                          actionButton("play", "", icon = icon("play")),
-                                          actionButton("pause", "", icon = icon("pause")),
-                                          actionButton("stop", "", icon = icon("stop")),
-                                          actionButton("skip_backward", "", icon = icon("backward")),
-                                          actionButton("skip_forward", "", icon = icon("forward")),
-                                          actionButton("mute", "", icon = icon("volume-off")),
-                                          sliderInput("volume", "Volume", min = 0, max = 100, value = 50),
+                                          uiOutput("audioplay",),
+                                  
+                                          # switchInput("minimap", "Minimap", inline = TRUE),
+                                          # switchInput("spectrogram", "spectrogram", inline = TRUE),
+                                          # switchInput("timeline", "timeline", inline = TRUE),
+                                          # switchInput("cursor", "cursor", inline = TRUE),
+                                          # actionButton("regions", "annotator", icon = icon("square")),
+                                          #tags$br(),
+                                          #wavesurferOutput("my_ws"),
+                                          #tags$br(),
+                                          # actionButton("play", "", icon = icon("play")),
+                                          # actionButton("pause", "", icon = icon("pause")),
+                                          # actionButton("stop", "", icon = icon("stop")),
+                                          # actionButton("skip_backward", "", icon = icon("backward")),
+                                          # actionButton("skip_forward", "", icon = icon("forward")),
+                                          # actionButton("mute", "", icon = icon("volume-off")),
+                                          # sliderInput("volume", "Volume", min = 0, max = 100, value = 50),
                                           
                                           uiOutput("SpecHelpInfo"),
                                           
@@ -122,13 +147,19 @@ shinyUI(navbarPage("Acoustic Analysis",
                    tabPanel("Segmentation",
                             sidebarPanel(width = 4,
                                          h3("Segmentation"),
+                                         ## Segmentation Help
+                                         uiOutput("SegHelpInfo"),
                                          br(),
                                          conditionalPanel("output.filechosen == true",
-                                                          uiOutput("shortestSyl"),
+                                                      
+                                                          div(style="display:inline-block",uiOutput("shortestSyl")),
+                                                          div(style="display:inline-block", actionButton("segHelp", "", icon = icon("question-circle"))),
+                                                          uiOutput("minSegInfo"),
                                                           div(style="display:inline-block",uiOutput("threshold")),
                                                           div(style="display:inline-block", actionButton("thresHelp", "", icon = icon("question-circle"))),
                                                           uiOutput("thresHelpInfo"),
-                                                          actionButton("seghelp", "Segmentation Help")
+                                                          #actionButton("seghelp", "Segmentation Help")
+          
                                                           )
                                          
                             ),
@@ -149,14 +180,13 @@ shinyUI(navbarPage("Acoustic Analysis",
                                                       div(DT::dataTableOutput("segments"), style = "font-size: 75%; width: 75%"),
                                                       br(),
                                                       downloadButton("downloadSegments", "Download Segments Data"),
-                                                      br(),
+                                                      br()
                                                       
                                                       
-                                                      ## Segmentation Help
-                                                      uiOutput("SegHelpInfo")))),
+                                                      )))
                                
                    
-            tabPanel("About", uiOutput("aboutInfo"))
+            #tabPanel("About", uiOutput("aboutInfo"))
 ))
 
 
